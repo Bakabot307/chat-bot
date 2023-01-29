@@ -3,7 +3,7 @@ const client = new SteamUser();
 require("dotenv").config();
 
 const tmi = require("tmi.js");
-
+let stop = false;
 let fromTwitch = true;
 const clientTwitch = new tmi.Client({
   channels: ["bakabot1235"],
@@ -34,7 +34,15 @@ client.on("friendMessage", function (steamId, message) {
 clientTwitch.connect();
 
 clientTwitch.on("message", (channel, tags, message, self) => {
-  if (fromTwitch === true) {
+  if (message === "!stop" && `${tags["display-name"]}` === "Bakabot1235") {
+    stop = true;
+  }
+  if ((message === "!start" && `${tags["display-name"]}`) === "Bakabot1235") {
+    stop = false;
+  }
+
+  if (fromTwitch === true && stop === false) {
+    console.log("sent");
     client.chatMessage(
       "76561198392179703",
       `${tags["display-name"]}: ${message}`

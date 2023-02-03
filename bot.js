@@ -60,9 +60,6 @@ steamClient.on("friendMessage", function (steamId, message) {
 });
 
 twitchClient.on("message", (channel, userstate, message, self) => {
-  if (userstate["username"] === channel.slice(1) || self) {
-    return;
-  }
   const command = message.trim().split(" ")[0];
   if (
     command === "!start" &&
@@ -82,12 +79,18 @@ twitchClient.on("message", (channel, userstate, message, self) => {
       channel,
       `/me bot stopped by ${userstate["username"]} NONONONONO`
     );
-  } else if (isBotRunning) {
-    steamClient.chatMessage(
-      "76561198392179703",
-      `${userstate["username"]}: ${message}`
+  }
+
+  if (isBotRunning === false) {
+    twitchClient.say(
+      channel,
+      `/me bot stopped by ${userstate["username"]} NONONONONO`
     );
-  } else {
     return;
   }
+
+  steamClient.chatMessage(
+    "76561198392179703",
+    `${userstate["username"]}: ${message}`
+  );
 });

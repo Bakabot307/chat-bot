@@ -59,8 +59,10 @@ steamClient.on("friendMessage", function (steamId, message) {
   twitchClientMain.say("bakabot1235", message);
 });
 
-twitchClient.on("chat", (channel, userstate, message, self) => {
-  if (self) return;
+twitchClientMain.on("message", (channel, userstate, message, self) => {
+  if (userstate.username === process.env.TWITCH_USER_NAME_MAIN) {
+    return;
+  }
 
   const command = message.trim().split(" ")[0];
 

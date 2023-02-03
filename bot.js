@@ -80,15 +80,12 @@ twitchClient.on("message", (channel, userstate, message, self) => {
       `/me bot stopped by ${userstate["username"]} NONONONONO`
     );
   }
-
-  if (isBotRunning === false) {
-    twitchClient.say(
-      channel,
-      `/me bot stopped by ${userstate["username"]} NONONONONO`
-    );
+  if (self || userstate["username"] === channel.slice(1)) {
     return;
   }
-
+  if (!isBotRunning) {
+    return;
+  }
   steamClient.chatMessage(
     "76561198392179703",
     `${userstate["username"]}: ${message}`

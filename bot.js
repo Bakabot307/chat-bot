@@ -36,8 +36,8 @@ const twitchClientMain = new tmi.Client({
   },
   channels: ["bakabot1235"],
 });
-twitchClient.connect().catch(console.log("yo"));
-twitchClientMain.connect();
+twitchClient.connect().catch(console.log("connect to bot"));
+twitchClientMain.connect().catch(console.log("connect to main"));
 const steamClient = new SteamUser();
 
 let isBotRunning = true;
@@ -54,15 +54,13 @@ steamClient.on("loggedOn", () => {
   );
   steamClient.setPersona(SteamUser.EPersonaState.Busy);
 });
-let fromTwitch = true;
+
 steamClient.on("friendMessage", function (steamId, message) {
-  fromTwitch = false;
   twitchClientMain.say("bakabot1235", message);
-  fromTwitch = true;
 });
 
 twitchClient.on("message", (channel, userstate, message, self) => {
-  if (self || fromTwitch === false) {
+  if (userstate["username"] === channel.slice(1) || self) {
     return;
   }
   const command = message.trim().split(" ")[0];

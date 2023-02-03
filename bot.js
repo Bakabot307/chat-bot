@@ -54,18 +54,18 @@ steamClient.on("loggedOn", () => {
   );
   steamClient.setPersona(SteamUser.EPersonaState.Busy);
 });
-
+let fromTwitch = true;
 steamClient.on("friendMessage", function (steamId, message) {
+  fromTwitch = false;
   twitchClientMain.say("bakabot1235", message);
+  fromTwitch = true;
 });
 
-twitchClientMain.on("message", (channel, userstate, message, self) => {
-  if (userstate.username === process.env.TWITCH_USER_NAME_MAIN) {
+twitchClient.on("message", (channel, userstate, message, self) => {
+  if (self || fromTwitch === false) {
     return;
   }
-
   const command = message.trim().split(" ")[0];
-
   if (
     command === "!start" &&
     (userstate["mod"] || userstate["username"] === channel.slice(1))

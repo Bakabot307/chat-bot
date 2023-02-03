@@ -36,8 +36,9 @@ const twitchClientMain = new tmi.Client({
   },
   channels: ["bakabot1235"],
 });
-twitchClient.connect().catch(console.log("connect to bot"));
 twitchClientMain.connect().catch(console.log("connect to main"));
+twitchClient.connect().catch(console.log("connect to bot"));
+
 const steamClient = new SteamUser();
 
 let isBotRunning = true;
@@ -75,12 +76,17 @@ twitchClientMain.on("message", (channel, userstate, message, self) => {
     (userstate["mod"] || userstate["username"] === channel.slice(1))
   ) {
     isBotRunning = false;
+
     twitchClient.say(
       channel,
       `/me bot stopped by ${userstate["username"]} NONONONONO`
     );
+    steamClient.chatMessage(
+      "76561198392179703",
+      `/me bot stopped by ${userstate["username"]} NONONONONO`
+    );
   }
-  if (self) {
+  if (userstate["username"] === channel.slice(1)) {
     return;
   }
   if (!isBotRunning) {

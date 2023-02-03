@@ -59,7 +59,7 @@ steamClient.on("friendMessage", function (steamId, message) {
   twitchClientMain.say("bakabot1235", message);
 });
 
-twitchClient.on("message", (channel, userstate, message, self) => {
+twitchClientMain.on("message", (channel, userstate, message, self) => {
   const command = message.trim().split(" ")[0];
   if (
     command === "!start" &&
@@ -80,7 +80,7 @@ twitchClient.on("message", (channel, userstate, message, self) => {
       `/me bot stopped by ${userstate["username"]} NONONONONO`
     );
   }
-  if (self || userstate["username"] === channel.slice(1)) {
+  if (self) {
     return;
   }
   if (!isBotRunning) {

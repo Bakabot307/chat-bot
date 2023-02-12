@@ -4,6 +4,7 @@ require("dotenv").config();
 const request = require("request");
 const steamTotp = require("steam-totp");
 const express = require("express");
+const catApi = require("random-cat-img");
 const app = express();
 const port = process.env.PORT || 3000;
 app.get("/", (req, res) => {
@@ -96,27 +97,39 @@ steamClient.logOn({
 steamClient.on("loggedOn", function () {
   console.log("Logged into Steam");
   steamClient.setPersona(SteamUser.EPersonaState.Online);
-  steamClient.gamesPlayed(["Yooooooooooooooo"]);
+  steamClient.gamesPlayed(["Yooooooo text me"]);
 });
 
 steamClient.on("friendMessage", (steamID, message) => {
-  // Randomly choose one of these cat image URLs
-  request(
-    {
-      url: "https://aws.random.cat/meow",
-      json: true,
-    },
-    (error, response, body) => {
-      if (!error && response.statusCode === 200) {
-        // Send a message to the Steam user with the URL of the random cat image
-        steamClient.chatMessage(
-          steamID,
-          `${body.file}`,
-          SteamUser.EChatEntryType.ChatMsg
-        );
-      } else {
-        console.error(`Error getting cat image: ${error}`);
+  const result = Math.floor(Math.random() * 2) + 1;
+
+  if (result === 1) {
+    (async () => {
+      const res = await catApi();
+      steamClient.chatMessage(
+        steamID,
+        `${res.data.message}`,
+        SteamUser.EChatEntryType.ChatMsg
+      );
+    })();
+  } else {
+    request(
+      {
+        url: "https://cataas.com/cat/cute?json=true",
+        json: true,
+      },
+      (error, response, body) => {
+        if (!error && response.statusCode === 200) {
+          // Send a message to the Steam user with the URL of the random cat image
+          steamClient.chatMessage(
+            steamID,
+            `https://cataas.com/cat/cute/${body.url}`,
+            SteamUser.EChatEntryType.ChatMsg
+          );
+        } else {
+          console.error(`Error getting cat image: ${error}`);
+        }
       }
-    }
-  );
+    );
+  }
 });

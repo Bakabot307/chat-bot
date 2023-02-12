@@ -2,6 +2,7 @@ const tmi = require("tmi.js");
 const SteamUser = require("steam-user");
 require("dotenv").config();
 const request = require("request");
+const steamTotp = require("steam-totp");
 
 // const twitchClient = new tmi.Client({
 //   connection: {
@@ -35,6 +36,7 @@ const steamClient = new SteamUser();
 steamClient.logOn({
   accountName: process.env.STEAM_USER_NAME,
   password: process.env.STEAM_PASSWORD,
+  twoFactorCode: steamTotp.generateAuthCode(process.env.STEAM_SHARED_SECRET),
 });
 
 // steamClient.on("loggedOn", () => {
@@ -82,10 +84,10 @@ steamClient.logOn({
 //   }
 // });
 
-steamClient.on("loggedOn", () => {
+steamClient.on("loggedOn", function () {
   console.log("Logged into Steam");
-  steamClient.setPersona(SteamUser.EPersonaState.Busy);
-  steamClient.gamesPlayed(["Meow~"]);
+  steamClient.setPersona(SteamUser.EPersonaState.Online);
+  steamClient.gamesPlayed(["Yooooooooooooooo"]);
 });
 
 steamClient.on("friendMessage", (steamID, message) => {

@@ -101,35 +101,12 @@ steamClient.on("loggedOn", function () {
 });
 
 steamClient.on("friendMessage", (steamID, message) => {
-  const result = Math.floor(Math.random() * 2) + 1;
-
-  if (result === 1) {
-    (async () => {
-      const res = await catApi();
-      steamClient.chatMessage(
-        steamID,
-        `${res.data.message}`,
-        SteamUser.EChatEntryType.ChatMsg
-      );
-    })();
-  } else {
-    request(
-      {
-        url: "https://cataas.com/cat/cute?json=true",
-        json: true,
-      },
-      (error, response, body) => {
-        if (!error && response.statusCode === 200) {
-          // Send a message to the Steam user with the URL of the random cat image
-          steamClient.chatMessage(
-            steamID,
-            `https://cataas.com/cat/cute/${body.url}`,
-            SteamUser.EChatEntryType.ChatMsg
-          );
-        } else {
-          console.error(`Error getting cat image: ${error}`);
-        }
-      }
+  (async () => {
+    const res = await catApi();
+    steamClient.chatMessage(
+      steamID,
+      `${res.data.message}`,
+      SteamUser.EChatEntryType.ChatMsg
     );
-  }
+  })();
 });

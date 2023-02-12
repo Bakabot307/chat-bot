@@ -101,7 +101,7 @@ steamClient.on("loggedOn", function () {
 });
 
 steamClient.on("friendMessage", (steamID, message) => {
-  const result = Math.floor(Math.random() * 2) + 1;
+  const result = Math.floor(Math.random() * 3) + 1;
 
   if (result === 1) {
     (async () => {
@@ -112,7 +112,7 @@ steamClient.on("friendMessage", (steamID, message) => {
         SteamUser.EChatEntryType.ChatMsg
       );
     })();
-  } else {
+  } else if (result == 2) {
     request(
       {
         url: "https://aws.random.cat/meow",
@@ -124,6 +124,25 @@ steamClient.on("friendMessage", (steamID, message) => {
           steamClient.chatMessage(
             steamID,
             `${body.file}`,
+            SteamUser.EChatEntryType.ChatMsg
+          );
+        } else {
+          console.error(`Error getting cat image: ${error}`);
+        }
+      }
+    );
+  } else {
+    request(
+      {
+        url: "https://api.thecatapi.com/v1/images/search",
+        json: true,
+      },
+      (error, response, body) => {
+        if (!error && response.statusCode === 200) {
+          // Send a message to the Steam user with the URL of the random cat image
+          steamClient.chatMessage(
+            steamID,
+            `${body.url}`,
             SteamUser.EChatEntryType.ChatMsg
           );
         } else {

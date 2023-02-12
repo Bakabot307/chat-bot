@@ -97,7 +97,7 @@ steamClient.logOn({
 steamClient.on("loggedOn", function () {
   console.log("Logged into Steam");
   steamClient.setPersona(SteamUser.EPersonaState.Online);
-  steamClient.gamesPlayed(["Yooooooo text me"]);
+  steamClient.gamesPlayed(["Yooooooooooooo"]);
 });
 
 steamClient.on("friendMessage", (steamID, message) => {

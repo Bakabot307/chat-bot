@@ -97,16 +97,39 @@ steamClient.logOn({
 steamClient.on("loggedOn", function () {
   console.log("Logged into Steam");
   steamClient.setPersona(SteamUser.EPersonaState.Online);
-  steamClient.gamesPlayed(["Yooooooooooo o"]);
+  steamClient.gamesPlayed(["Yoooooooooooo"]);
 });
 
 steamClient.on("friendMessage", (steamID, message) => {
-  (async () => {
-    const res = await catApi();
-    steamClient.chatMessage(
-      steamID,
-      `${res.data.message}`,
-      SteamUser.EChatEntryType.ChatMsg
+  const result = Math.floor(Math.random() * 2) + 1;
+
+  if (result === 1) {
+    (async () => {
+      const res = await catApi();
+      steamClient.chatMessage(
+        steamID,
+        `${res.data.message}`,
+        SteamUser.EChatEntryType.ChatMsg
+      );
+    })();
+  } else {
+    request(
+      {
+        url: "https://aws.random.cat/meow",
+        json: true,
+      },
+      (error, response, body) => {
+        if (!error && response.statusCode === 200) {
+          // Send a message to the Steam user with the URL of the random cat image
+          steamClient.chatMessage(
+            steamID,
+            `${body.file}`,
+            SteamUser.EChatEntryType.ChatMsg
+          );
+        } else {
+          console.error(`Error getting cat image: ${error}`);
+        }
+      }
     );
-  })();
+  }
 });

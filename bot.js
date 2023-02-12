@@ -142,7 +142,7 @@ steamClient.on("friendMessage", (steamID, message) => {
           // Send a message to the Steam user with the URL of the random cat image
           steamClient.chatMessage(
             steamID,
-            `${body.url}`,
+            `${body[0].url}`,
             SteamUser.EChatEntryType.ChatMsg
           );
         } else {

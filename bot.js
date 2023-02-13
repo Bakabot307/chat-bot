@@ -106,6 +106,7 @@ steamClient.on("friendMessage", (steamID, message) => {
   if (result === 1) {
     (async () => {
       const res = await catApi();
+      steamClient.chatTyping(steamID);
       steamClient.chatMessage(
         steamID,
         `${res.data.message}`,
@@ -121,6 +122,7 @@ steamClient.on("friendMessage", (steamID, message) => {
       (error, response, body) => {
         if (!error && response.statusCode === 200) {
           // Send a message to the Steam user with the URL of the random cat image
+          steamClient.chatTyping(steamID);
           steamClient.chatMessage(
             steamID,
             `${body.file}`,
@@ -140,6 +142,7 @@ steamClient.on("friendMessage", (steamID, message) => {
       (error, response, body) => {
         if (!error && response.statusCode === 200) {
           // Send a message to the Steam user with the URL of the random cat image
+          steamClient.chatTyping(steamID);
           steamClient.chatMessage(
             steamID,
             `${body[0].url}`,

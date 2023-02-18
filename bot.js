@@ -96,10 +96,31 @@ steamClient.logOn({
 
 steamClient.on("loggedOn", function () {
   console.log("Logged into Steam");
-  steamClient.setPersona(SteamUser.EPersonaState.Online);
+  steamClient.setPersona(SteamUser.EPersonaState.Busy);
   steamClient.gamesPlayed([570]);
 });
 
+steamClient.on("error", function (e) {
+  if (e.eresult === SteamUser.EResult.LoggedInElsewhere) {
+    console.log("logged somewhere else");
+    relogAfterDelay();
+  }
+});
+
+function relogAfterDelay() {
+  const delay = 120000;
+  console.log("gonna retry after", delay / 1000, "s");
+  setTimeout(() => {
+    console.log(`Relogging...`);
+    steamClient.logOn({
+      accountName: process.env.STEAM_USER_NAME,
+      password: process.env.STEAM_PASSWORD,
+      twoFactorCode: steamTotp.generateAuthCode(
+        process.env.STEAM_SHARED_SECRET
+      ),
+    });
+  }, delay);
+}
 steamClient.on("friendMessage", (steamID, message) => {
   const result = Math.floor(Math.random() * 3) + 1;
 

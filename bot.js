@@ -110,6 +110,7 @@ steamClient.on("error", function (e) {
 function relogAfterDelay() {
   const delay = 120000;
   console.log("gonna retry after", delay / 1000, "s");
+  steamClient.setPersona(SteamUser.EPersonaState.Busy);
   setTimeout(() => {
     console.log(`Relogging...`);
     steamClient.logOn({

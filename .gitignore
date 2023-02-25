@@ -1,3 +1,4 @@
 node_modules
 .env
-bot.bat 
+bot.bat
+.idea

@@ -29,19 +29,18 @@ steamClient.logOn(loginDetails);
 
 steamClient.on("loggedOn", function () {
   console.log("Logged into Steam");
-  steamClient.on('playingState', function(blocked, playingApp) {
-    if(blocked){
-      console.log("playing: ", playingApp)
-      steamClient.setPersona(SteamUser.EPersonaState.Busy);
-      setGameAfterDelay();
-    } else{
-      console.log("not playing anything")
-      steamClient.setPersona(SteamUser.EPersonaState.Busy);
-      steamClient.gamesPlayed([570])
-    }
-  });
 });
 
+steamClient.on('playingState', function(blocked, playingApp) {
+  if(blocked){
+    console.log("playing: ", playingApp)
+    steamClient.setPersona(SteamUser.EPersonaState.Busy);
+  } else{
+    console.log("not playing anything")
+    steamClient.setPersona(SteamUser.EPersonaState.Busy);
+    steamClient.gamesPlayed([570])
+  }
+});
 steamClient.on("error", function (e) {
   if (e.eresult === SteamUser.EResult.LoggedInElsewhere) {
     console.log("logged somewhere else");
@@ -49,15 +48,6 @@ steamClient.on("error", function (e) {
     relogAfterDelay();
   }
 });
-
-function setGameAfterDelay() {
-  const delay = 360000;
-  console.log("gonna retry to set game after", delay / 1000, "s");
-  setTimeout(() => {
-    console.log(`trying to set game state...`);
-    steamClient.gamesPlayed([570])
-  }, delay);
-}
 
 function relogAfterDelay() {
   const delay = 60000;

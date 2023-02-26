@@ -22,7 +22,9 @@ const loginDetails = {
   accountName: process.env.STEAM_USER_NAME,
   password: process.env.STEAM_PASSWORD,
   twoFactorCode: steamTotp.generateAuthCode(process.env.STEAM_SHARED_SECRET),
+  rememberPassword: true,
 };
+
 steamClient.logOn(loginDetails);
 
 steamClient.on("loggedOn", function () {
@@ -32,8 +34,7 @@ steamClient.on("loggedOn", function () {
       console.log("playing: ", playingApp)
       steamClient.setPersona(SteamUser.EPersonaState.Busy);
       setGameAfterDelay();
-    } else
-    {
+    } else{
       console.log("not playing anything")
       steamClient.setPersona(SteamUser.EPersonaState.Busy);
       steamClient.gamesPlayed([570])
@@ -44,6 +45,7 @@ steamClient.on("loggedOn", function () {
 steamClient.on("error", function (e) {
   if (e.eresult === SteamUser.EResult.LoggedInElsewhere) {
     console.log("logged somewhere else");
+    steamClient.setPersona(SteamUser.EPersonaState.Busy);
     relogAfterDelay();
   }
 });
@@ -58,10 +60,11 @@ function setGameAfterDelay() {
 }
 
 function relogAfterDelay() {
-  const delay = 120000;
+  const delay = 60000;
   console.log("gonna retry after", delay / 1000, "s");
   setTimeout(() => {
     console.log(`Relogging...`);
+    loginDetails.twoFactorCode= steamTotp.generateAuthCode(process.env.STEAM_SHARED_SECRET)
     steamClient.logOn(loginDetails);
   }, delay);
 }

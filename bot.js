@@ -6,8 +6,8 @@ const express = require("express");
 const catApi = require("random-cat-img");
 const app = express();
 const port = process.env.PORT || 3000;
-const bodyParser = require('body-parser');
-const received_updates = [];
+var bodyParser = require('body-parser');
+var received_updates = [];
 app.get("/", (req, res) => {
   res.send('<pre>' + JSON.stringify(received_updates, null, 2) + '</pre>');
 });
@@ -25,7 +25,9 @@ app.post('/instagram', function(req, res) {
   received_updates.unshift(req.body);
   res.sendStatus(200);
 });
-app.listen();
+app.listen(port, () => {
+  console.log(`Example app listening at http://localhost:${port}`);
+});
 const receivers = [
   '76561198392179703', //IDs for example
   '22222222222222222',

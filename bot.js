@@ -10,9 +10,10 @@ const port = process.env.PORT || 3000;
 app.get("/", (req, res) => {
   const challengeNumber = req.query["hub.challenge"];
   res.send(challengeNumber);
+  res.send("insta")
 });
 app.post("/", (req, res) => {
-  console.log(req)
+  console.log(req.entry)
 })
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);

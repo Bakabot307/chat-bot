@@ -13,7 +13,7 @@ app.get("/", (req, res) => {
   res.send("insta")
 });
 app.post("/", (req, res) => {
-  console.log(req.entry)
+  console.log(req)
 })
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);

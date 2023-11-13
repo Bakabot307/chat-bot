@@ -6,9 +6,9 @@ const express = require("express");
 const catApi = require("random-cat-img");
 const app = express();
 const port = process.env.PORT || 3000;
-var bodyParser = require('body-parser');
+const bodyParser = require('body-parser');
 app.get("/", (req, res) => {
-  res.send('instagram');
+  res.send('insta');
 });
 app.use(bodyParser.json());
 
@@ -19,7 +19,7 @@ app.get('/instagram', function(req, res) {
 
 app.post('/instagram', function(req, res) {
   console.log('Instagram request body:');
-  console.log(req.body.entry[0].changed_fields);
+  console.log(req.body);
   // Process the Instagram updates here
   res.sendStatus(200);
 });

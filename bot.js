@@ -7,7 +7,7 @@ const catApi = require("random-cat-img");
 const app = express();
 const port = process.env.PORT || 3000;
 const bodyParser = require('body-parser');
-var bigInt = require('big-integer');
+const bigInt = require('big-integer');
 app.get("/", (req, res) => {
   res.send('insta');
 });

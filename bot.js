@@ -10,6 +10,11 @@ const port = process.env.PORT || 3000;
 app.get("/", (req, res) => {
   res.send("Bakabobo " + req);
 });
+app.post('/', (req, res) => {
+  // Handle the incoming webhook payload here
+  console.log('Webhook received:', req.body);
+  res.status(200).send('Webhook received successfully');
+});
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });

@@ -8,12 +8,12 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.get("/", (req, res) => {
+
+  console.log(req)
   const challengeNumber = req.query["hub.challenge"];
   res.send(challengeNumber);
 });
-app.post("/", (req, res) => {
-  console.log("ya")
-})
+
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });

@@ -7,6 +7,7 @@ const catApi = require("random-cat-img");
 const app = express();
 const port = process.env.PORT || 3000;
 const bodyParser = require('body-parser');
+var bigInt = require('big-integer');
 app.get("/", (req, res) => {
   res.send('insta');
 });
@@ -22,8 +23,26 @@ app.post('/instagram', function(req, res) {
   console.log(req.body);
   console.log(req.body.entry[0].changes);
   // Process the Instagram updates here
+  console.log(getShortcodeFromTag(req.body.entry[0].changes.value.media_id))
   res.sendStatus(200);
+
 });
+
+
+function getShortcodeFromTag(tag) {
+  let id = bigInt(tag.split('_', 1)[0]);
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+  let remainder;
+  let shortcode = '';
+
+  while (id.greater(0)) {
+    let division = id.divmod(64);
+    id = division.quotient;
+    shortcode = `${alphabet.charAt(division.remainder)}${shortcode}`;
+  }
+
+  return shortcode;
+}
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });

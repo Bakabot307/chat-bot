@@ -12,7 +12,7 @@ app.get("/", (req, res) => {
   res.send(challengeNumber);
 });
 app.post("/", (req, res) => {
-
+  console.log("ya")
 })
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);

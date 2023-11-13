@@ -12,7 +12,7 @@ app.get("/", (req, res) => {
   res.send(challengeNumber);
 });
 app.post("/", (req, res) => {
-  console.log(req.body)
+  console.log(req)
   res.sendStatus(200);
 })
 app.listen(port, () => {

@@ -8,8 +8,9 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.get("/", (req, res) => {
-  console.log(req.query)
-  res.send("Bakabobo " + port);
+
+  const challengeNumber = req.query["hub.challenge"];
+  res.send(challengeNumber);
 });
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);

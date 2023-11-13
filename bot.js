@@ -8,7 +8,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 var bodyParser = require('body-parser');
 app.get("/", (req, res) => {
-  res.send('<pre>' + JSON.stringify(received_updates, null, 2) + '</pre>');
+  res.send('instagram');
 });
 app.use(bodyParser.json());
 

@@ -7,7 +7,6 @@ const catApi = require("random-cat-img");
 const app = express();
 const port = process.env.PORT || 3000;
 const bodyParser = require('body-parser');
-const bigInt = require('big-integer');
 app.get("/", (req, res) => {
   res.send('insta');
 });
@@ -23,25 +22,28 @@ app.post('/instagram', function(req, res) {
   console.log(req.body);
   console.log(req.body.entry[0].changes);
   // Process the Instagram updates here
-  console.log(getShortcodeFromTag(req.body.entry[0].changes.value.media_id))
+  console.log(getInstagramPostId(req.body.entry[0].changes.value.media_id))
   res.sendStatus(200);
 
 });
 
 
-function getShortcodeFromTag(tag) {
-  let id = bigInt(tag.split('_', 1)[0]);
-  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
-  let remainder;
-  let shortcode = '';
+function getInstagramPostId(mediaId) {
+  let postId = "";
+  try {
+    let id = parseInt(mediaId.substring(0, mediaId.indexOf('_')));
+    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
-  while (id.greater(0)) {
-    let division = id.divmod(64);
-    id = division.quotient;
-    shortcode = `${alphabet.charAt(division.remainder)}${shortcode}`;
+    while (id > 0) {
+      const remainder = id % 64;
+      id = (id - remainder) / 64;
+      postId = alphabet.charAt(remainder) + postId;
+    }
+  } catch (e) {
+    console.error(e);
   }
 
-  return shortcode;
+  return postId;
 }
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);

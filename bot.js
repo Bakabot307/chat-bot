@@ -20,6 +20,7 @@ app.get('/instagram', function(req, res) {
 app.post('/instagram', function(req, res) {
   console.log('Instagram request body:');
   console.log(req.body);
+  console.log(req.body.entry[0].changed_fields);
   // Process the Instagram updates here
   res.sendStatus(200);
 });

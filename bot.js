@@ -22,8 +22,8 @@ app.post('/instagram', function(req, res) {
   console.log(req.body);
   console.log(req.body.entry[0].changes);
   // Process the Instagram updates here
-  console.log(req.body.entry[0].changes[1].value)
-  console.log(req.body.entry[0].changes[1].value.media_id)
+  console.log(req.body.entry[0].changes[1])
+  console.log(req.body.entry[0].changes[1].media_id)
   res.sendStatus(200);
 
 });

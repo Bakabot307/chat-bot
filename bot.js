@@ -6,7 +6,9 @@ const express = require("express");
 const catApi = require("random-cat-img");
 const app = express();
 const port = process.env.PORT || 3000;
+var bodyParser = require('body-parser');
 
+app.use(bodyParser.json());
 app.get("/", (req, res) => {
   const challengeNumber = req.query["hub.challenge"];
   res.send(challengeNumber);

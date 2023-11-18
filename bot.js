@@ -130,8 +130,9 @@ twitchClientMain.on("message", (channel, userstate, message, self) => {
     return;
   }
   if (isBotRunning===false) {
-    console.log("false command not running")
+
     steamClient.on("friendMessage", (steamID, message) => {
+          console.log("false command not running")
       const result = Math.floor(Math.random() * 3) + 1;
 
       if (result === 1) {

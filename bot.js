@@ -129,7 +129,7 @@ twitchClientMain.on("message", (channel, userstate, message, self) => {
   if (userstate["username"] === channel.slice(1)) {
     return;
   }
-  if (!isBotRunning) {
+  if (isBotRunning==false) {
     steamClient.on("friendMessage", (steamID, message) => {
       const result = Math.floor(Math.random() * 3) + 1;
 

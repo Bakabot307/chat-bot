@@ -130,7 +130,7 @@ twitchClientMain.on("message", (channel, userstate, message, self) => {
   if (userstate["username"] === channel.slice(1)) {
     return;
   }
-  if (isBotRunning===false) {
+  if (isBotRunning==false) {
     steamClientMain.on("friendMessage", (steamID, message) => {
       const result = Math.floor(Math.random() * 3) + 1;
       if (result === 1) {
@@ -186,7 +186,7 @@ twitchClientMain.on("message", (channel, userstate, message, self) => {
       }
   }
   );
-} else {
+  } else {
     steamClient.chatMessage(
         "76561198392179703",
         `${userstate["username"]}: ${message}`

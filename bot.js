@@ -101,96 +101,98 @@ steamClient.on("friendMessage", function (steamId, message) {
     twitchClientMain.say("bakabot1235", message);
   }
 });
-
-twitchClientMain.on("message", (channel, userstate, message, self) => {
-  const command = message.trim().split(" ")[0];
-  if (
-      command === "!start" &&
-      (userstate["mod"] || userstate["username"] === channel.slice(1))
-  ) {
-    isBotRunning = true;
-    twitchClient.say(
-        channel,
-        `/me bot started by ${userstate["username"]} Plotge `
-    );
-  } else if (
-      command === "!stop" &&
-      (userstate["mod"] || userstate["username"] === channel.slice(1))
-  ) {
-    isBotRunning = false;
-    twitchClient.say(
-        channel,
-        `/me bot stopped by ${userstate["username"]} NONONONONO sending cat pics `
-    );
-    steamClient.chatMessage(
-        "76561198392179703",
-        `/me bot stopped by ${userstate["username"]} NONONONONO sending cat pics`
-    );
-  }
-  if (userstate["username"] === channel.slice(1)) {
-    return;
-  }
-  if (isBotRunning==false) {
-    steamClientMain.on("friendMessage", (steamID, message) => {
-      const result = Math.floor(Math.random() * 3) + 1;
-      if (result === 1) {
-        (async () => {
-          const res = await catApi();
-          steamClientMain.chatTyping(steamID);
-          steamClientMain.chatMessage(
-              steamID,
-              `${res.data.message}`,
-              SteamUser.EChatEntryType.ChatMsg
+if (isBotRunning==false) {
+  steamClientMain.on("friendMessage", (steamID, message) => {
+        const result = Math.floor(Math.random() * 3) + 1;
+        if (result === 1) {
+          (async () => {
+            const res = await catApi();
+            steamClientMain.chatTyping(steamID);
+            steamClientMain.chatMessage(
+                steamID,
+                `${res.data.message}`,
+                SteamUser.EChatEntryType.ChatMsg
+            );
+          })();
+        } else if (result === 2) {
+          request(
+              {
+                url: "https://aws.random.cat/meow",
+                json: true,
+              },
+              (error, response, body) => {
+                if (!error && response.statusCode === 200) {
+                  // Send a message to the Steam user with the URL of the random cat image
+                  steamClientMain.chatTyping(steamID);
+                  steamClientMain.chatMessage(
+                      steamID,
+                      `${body.file}`,
+                      SteamUser.EChatEntryType.ChatMsg
+                  );
+                } else {
+                  console.error(`Error getting cat image: ${error}`);
+                }
+              }
           );
-        })();
-      } else if (result === 2) {
-        request(
-            {
-              url: "https://aws.random.cat/meow",
-              json: true,
-            },
-            (error, response, body) => {
-              if (!error && response.statusCode === 200) {
-                // Send a message to the Steam user with the URL of the random cat image
-                steamClientMain.chatTyping(steamID);
-                steamClientMain.chatMessage(
-                    steamID,
-                    `${body.file}`,
-                    SteamUser.EChatEntryType.ChatMsg
-                );
-              } else {
-                console.error(`Error getting cat image: ${error}`);
+        } else {
+          request(
+              {
+                url: "https://api.thecatapi.com/v1/images/search",
+                json: true,
+              },
+              (error, response, body) => {
+                if (!error && response.statusCode === 200) {
+                  // Send a message to the Steam user with the URL of the random cat image
+                  steamClientMain.chatTyping(steamID);
+                  steamClientMain.chatMessage(
+                      steamID,
+                      `${body[0].url}`,
+                      SteamUser.EChatEntryType.ChatMsg
+                  );
+                } else {
+                  console.error(`Error getting cat image: ${error}`);
+                }
               }
-            }
-        );
-      } else {
-        request(
-            {
-              url: "https://api.thecatapi.com/v1/images/search",
-              json: true,
-            },
-            (error, response, body) => {
-              if (!error && response.statusCode === 200) {
-                // Send a message to the Steam user with the URL of the random cat image
-                steamClientMain.chatTyping(steamID);
-                steamClientMain.chatMessage(
-                    steamID,
-                    `${body[0].url}`,
-                    SteamUser.EChatEntryType.ChatMsg
-                );
-              } else {
-                console.error(`Error getting cat image: ${error}`);
-              }
-            }
-        );
+          );
+        }
       }
-  }
   );
-  } else {
+} else {
+  twitchClientMain.on("message", (channel, userstate, message, self) => {
+    const command = message.trim().split(" ")[0];
+    if (
+        command === "!start" &&
+        (userstate["mod"] || userstate["username"] === channel.slice(1))
+    ) {
+      isBotRunning = true;
+      twitchClient.say(
+          channel,
+          `/me bot started by ${userstate["username"]} Plotge `
+      );
+    } else if (
+        command === "!stop" &&
+        (userstate["mod"] || userstate["username"] === channel.slice(1))
+    ) {
+      isBotRunning = false;
+      twitchClient.say(
+          channel,
+          `/me bot stopped by ${userstate["username"]} NONONONONO sending cat pics `
+      );
+      steamClient.chatMessage(
+          "76561198392179703",
+          `/me bot stopped by ${userstate["username"]} NONONONONO sending cat pics`
+      );
+    }
+    if (userstate["username"] === channel.slice(1)) {
+      return;
+    }
+
     steamClient.chatMessage(
         "76561198392179703",
         `${userstate["username"]}: ${message}`
     );
-  }
-});
+  })
+}
+
+
 

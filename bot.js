@@ -180,7 +180,7 @@ twitchClientMain.on("message", (channel, userstate, message, self) => {
         );
       }
   }
-  });
+  );
   steamClient.chatMessage(
       "76561198392179703",
       `${userstate["username"]}: ${message}`

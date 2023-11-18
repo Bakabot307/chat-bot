@@ -97,7 +97,9 @@ steamClient.on("loggedOn", () => {
 });
 
 steamClient.on("friendMessage", function (steamId, message) {
-  twitchClientMain.say("bakabot1235", message);
+  if(isBotRunning===true){
+    twitchClientMain.say("bakabot1235", message);
+  }
 });
 
 twitchClientMain.on("message", (channel, userstate, message, self) => {
@@ -130,9 +132,7 @@ twitchClientMain.on("message", (channel, userstate, message, self) => {
     return;
   }
   if (isBotRunning===false) {
-
     steamClientMain.on("friendMessage", (steamID, message) => {
-          console.log("false command not running")
       const result = Math.floor(Math.random() * 3) + 1;
 
       if (result === 1) {

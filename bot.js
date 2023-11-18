@@ -44,8 +44,8 @@ const steamClient = new SteamUser();
 let isBotRunning = true;
 
 steamClient.logOn({
-  accountName: process.env.STEAM_USER_NAME,
-  password: process.env.STEAM_PASSWORD,
+  accountName: process.env.STEAM_USER_NAME_2,
+  password: process.env.STEAM_PASSWORD_2,
 });
 
 steamClient.on("loggedOn", () => {

@@ -118,7 +118,6 @@ twitchClientMain.on("message", (channel, userstate, message, self) => {
       (userstate["mod"] || userstate["username"] === channel.slice(1))
   ) {
     isBotRunning = false;
-
     twitchClient.say(
         channel,
         `/me bot stopped by ${userstate["username"]} NONONONONO sending cat pics `
@@ -134,7 +133,6 @@ twitchClientMain.on("message", (channel, userstate, message, self) => {
   if (isBotRunning===false) {
     steamClientMain.on("friendMessage", (steamID, message) => {
       const result = Math.floor(Math.random() * 3) + 1;
-
       if (result === 1) {
         (async () => {
           const res = await catApi();
@@ -195,3 +193,4 @@ twitchClientMain.on("message", (channel, userstate, message, self) => {
     );
   }
 });
+

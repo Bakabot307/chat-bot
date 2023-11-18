@@ -101,6 +101,36 @@ steamClient.on("friendMessage", function (steamId, message) {
     twitchClientMain.say("bakabot1235", message);
   }
 });
+twitchClientMain.on("message", (channel, userstate, message, self) => {
+  const command = message.trim().split(" ")[0];
+  if (
+      command === "!start" &&
+      (userstate["mod"] || userstate["username"] === channel.slice(1))
+  ) {
+    isBotRunning = true;
+    twitchClient.say(
+        channel,
+        `/me bot started by ${userstate["username"]} Plotge `
+    );
+  } else if (
+      command === "!stop" &&
+      (userstate["mod"] || userstate["username"] === channel.slice(1))
+  ) {
+    isBotRunning = false;
+    twitchClient.say(
+        channel,
+        `/me bot stopped by ${userstate["username"]} NONONONONO sending cat pics `
+    );
+    steamClient.chatMessage(
+        "76561198392179703",
+        `/me bot stopped by ${userstate["username"]} NONONONONO sending cat pics`
+    );
+  }
+  if (userstate["username"] === channel.slice(1)) {
+    return;
+  }
+})
+
 if (isBotRunning==false) {
   steamClientMain.on("friendMessage", (steamID, message) => {
         const result = Math.floor(Math.random() * 3) + 1;
@@ -158,35 +188,6 @@ if (isBotRunning==false) {
       }
   );
 } else {
-  twitchClientMain.on("message", (channel, userstate, message, self) => {
-    const command = message.trim().split(" ")[0];
-    if (
-        command === "!start" &&
-        (userstate["mod"] || userstate["username"] === channel.slice(1))
-    ) {
-      isBotRunning = true;
-      twitchClient.say(
-          channel,
-          `/me bot started by ${userstate["username"]} Plotge `
-      );
-    } else if (
-        command === "!stop" &&
-        (userstate["mod"] || userstate["username"] === channel.slice(1))
-    ) {
-      isBotRunning = false;
-      twitchClient.say(
-          channel,
-          `/me bot stopped by ${userstate["username"]} NONONONONO sending cat pics `
-      );
-      steamClient.chatMessage(
-          "76561198392179703",
-          `/me bot stopped by ${userstate["username"]} NONONONONO sending cat pics`
-      );
-    }
-    if (userstate["username"] === channel.slice(1)) {
-      return;
-    }
-
     steamClient.chatMessage(
         "76561198392179703",
         `${userstate["username"]}: ${message}`

@@ -137,63 +137,65 @@ twitchClientMain.on("message", (channel, userstate, message, self) => {
   }
 })
 
-if (isBotRunning==false) {
+
   steamClientMain.on("friendMessage", (steamID, message) => {
-        const result = Math.floor(Math.random() * 3) + 1;
-        if (result === 1) {
-          (async () => {
-            const res = await catApi();
-            steamClientMain.chatTyping(steamID);
-            steamClientMain.chatMessage(
-                steamID,
-                `${res.data.message}`,
-                SteamUser.EChatEntryType.ChatMsg
+        if (isBotRunning == false) {
+          const result = Math.floor(Math.random() * 3) + 1;
+          if (result === 1) {
+            (async () => {
+              const res = await catApi();
+              steamClientMain.chatTyping(steamID);
+              steamClientMain.chatMessage(
+                  steamID,
+                  `${res.data.message}`,
+                  SteamUser.EChatEntryType.ChatMsg
+              );
+            })();
+          } else if (result === 2) {
+            request(
+                {
+                  url: "https://aws.random.cat/meow",
+                  json: true,
+                },
+                (error, response, body) => {
+                  if (!error && response.statusCode === 200) {
+                    // Send a message to the Steam user with the URL of the random cat image
+                    steamClientMain.chatTyping(steamID);
+                    steamClientMain.chatMessage(
+                        steamID,
+                        `${body.file}`,
+                        SteamUser.EChatEntryType.ChatMsg
+                    );
+                  } else {
+                    console.error(`Error getting cat image: ${error}`);
+                  }
+                }
             );
-          })();
-        } else if (result === 2) {
-          request(
-              {
-                url: "https://aws.random.cat/meow",
-                json: true,
-              },
-              (error, response, body) => {
-                if (!error && response.statusCode === 200) {
-                  // Send a message to the Steam user with the URL of the random cat image
-                  steamClientMain.chatTyping(steamID);
-                  steamClientMain.chatMessage(
-                      steamID,
-                      `${body.file}`,
-                      SteamUser.EChatEntryType.ChatMsg
-                  );
-                } else {
-                  console.error(`Error getting cat image: ${error}`);
+          } else {
+            request(
+                {
+                  url: "https://api.thecatapi.com/v1/images/search",
+                  json: true,
+                },
+                (error, response, body) => {
+                  if (!error && response.statusCode === 200) {
+                    // Send a message to the Steam user with the URL of the random cat image
+                    steamClientMain.chatTyping(steamID);
+                    steamClientMain.chatMessage(
+                        steamID,
+                        `${body[0].url}`,
+                        SteamUser.EChatEntryType.ChatMsg
+                    );
+                  } else {
+                    console.error(`Error getting cat image: ${error}`);
+                  }
                 }
-              }
-          );
-        } else {
-          request(
-              {
-                url: "https://api.thecatapi.com/v1/images/search",
-                json: true,
-              },
-              (error, response, body) => {
-                if (!error && response.statusCode === 200) {
-                  // Send a message to the Steam user with the URL of the random cat image
-                  steamClientMain.chatTyping(steamID);
-                  steamClientMain.chatMessage(
-                      steamID,
-                      `${body[0].url}`,
-                      SteamUser.EChatEntryType.ChatMsg
-                  );
-                } else {
-                  console.error(`Error getting cat image: ${error}`);
-                }
-              }
-          );
+            );
+          }
         }
       }
   );
-}
+
 
 
 

@@ -58,11 +58,11 @@ steamClientMain.logOn(loginDetails);
 steamClientMain.on('playingState', function(blocked, playingApp) {
   if(blocked){
     console.log("playing: ", playingApp)
-    steamClient.setPersona(SteamUser.EPersonaState.Busy);
+    steamClientMain.setPersona(SteamUser.EPersonaState.Busy);
   } else{
     console.log("not playing anything")
-    steamClient.setPersona(SteamUser.EPersonaState.Busy);
-    steamClient.gamesPlayed([570])
+    steamClientMain.setPersona(SteamUser.EPersonaState.Busy);
+    steamClientMain.gamesPlayed([570])
   }
 });
 steamClientMain.on("error", function (e) {

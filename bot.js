@@ -131,15 +131,15 @@ twitchClientMain.on("message", (channel, userstate, message, self) => {
   }
   if (isBotRunning===false) {
 
-    steamClient.on("friendMessage", (steamID, message) => {
+    steamClientMain.on("friendMessage", (steamID, message) => {
           console.log("false command not running")
       const result = Math.floor(Math.random() * 3) + 1;
 
       if (result === 1) {
         (async () => {
           const res = await catApi();
-          steamClient.chatTyping(steamID);
-          steamClient.chatMessage(
+          steamClientMain.chatTyping(steamID);
+          steamClientMain.chatMessage(
               steamID,
               `${res.data.message}`,
               SteamUser.EChatEntryType.ChatMsg
@@ -154,8 +154,8 @@ twitchClientMain.on("message", (channel, userstate, message, self) => {
             (error, response, body) => {
               if (!error && response.statusCode === 200) {
                 // Send a message to the Steam user with the URL of the random cat image
-                steamClient.chatTyping(steamID);
-                steamClient.chatMessage(
+                steamClientMain.chatTyping(steamID);
+                steamClientMain.chatMessage(
                     steamID,
                     `${body.file}`,
                     SteamUser.EChatEntryType.ChatMsg
@@ -174,8 +174,8 @@ twitchClientMain.on("message", (channel, userstate, message, self) => {
             (error, response, body) => {
               if (!error && response.statusCode === 200) {
                 // Send a message to the Steam user with the URL of the random cat image
-                steamClient.chatTyping(steamID);
-                steamClient.chatMessage(
+                steamClientMain.chatTyping(steamID);
+                steamClientMain.chatMessage(
                     steamID,
                     `${body[0].url}`,
                     SteamUser.EChatEntryType.ChatMsg
@@ -188,7 +188,7 @@ twitchClientMain.on("message", (channel, userstate, message, self) => {
       }
   }
   );
-  steamClient.chatMessage(
+    steamClientMain.chatMessage(
       "76561198392179703",
       `${userstate["username"]}: ${message}`
   );

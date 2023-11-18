@@ -192,8 +192,8 @@ if (isBotRunning==false) {
         "76561198392179703",
         `${userstate["username"]}: ${message}`
     );
-  })
-}
+  }
+
 
 
 

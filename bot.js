@@ -123,8 +123,6 @@ twitchClientMain.on("message", (channel, userstate, message, self) => {
     return;
   }
   if (!isBotRunning) {
-    function relogAfterDelay() {
-    }
     steamClient.on("friendMessage", (steamID, message) => {
       const result = Math.floor(Math.random() * 3) + 1;
 

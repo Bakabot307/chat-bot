@@ -1,12 +1,15 @@
 const tmi = require("tmi.js");
 const SteamUser = require("steam-user");
 require("dotenv").config();
+
 const express = require("express");
 const app = express();
 const port = process.env.PORT || 3000;
+
 app.get("/", (req, res) => {
   res.send("Bakabobo " + port);
 });
+
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
@@ -21,6 +24,7 @@ const twitchClient = new tmi.Client({
   },
   channels: ["bakabot1235"],
 });
+
 const twitchClientMain = new tmi.Client({
   connection: {
     reconnect: true,
@@ -32,17 +36,18 @@ const twitchClientMain = new tmi.Client({
   },
   channels: ["bakabot1235"],
 });
-twitchClient.connect().catch(console.log("connect to bot"));
 twitchClientMain.connect().catch(console.log("connect to main"));
 twitchClient.connect().catch(console.log("connect to bot"));
 
 const steamClient = new SteamUser();
 
 let isBotRunning = true;
+
 steamClient.logOn({
   accountName: process.env.STEAM_USER_NAME,
   password: process.env.STEAM_PASSWORD,
 });
+
 steamClient.on("loggedOn", () => {
   twitchClient.say(
       "bakabot1235",
@@ -50,9 +55,11 @@ steamClient.on("loggedOn", () => {
   );
   steamClient.setPersona(SteamUser.EPersonaState.Busy);
 });
+
 steamClient.on("friendMessage", function (steamId, message) {
   twitchClientMain.say("bakabot1235", message);
 });
+
 twitchClientMain.on("message", (channel, userstate, message, self) => {
   const command = message.trim().split(" ")[0];
   if (
@@ -79,15 +86,14 @@ twitchClientMain.on("message", (channel, userstate, message, self) => {
         `/me bot stopped by ${userstate["username"]} NONONONONO`
     );
   }
-  if (self) {
-    if (userstate["username"] === channel.slice(1)) {
-      return;
-    }
-    if (!isBotRunning) {
-      return;
-    }
-    steamClient.chatMessage(
-        "76561198392179703",
-        `${userstate["username"]}: ${message}`
-    );
-  });
+  if (userstate["username"] === channel.slice(1)) {
+    return;
+  }
+  if (!isBotRunning) {
+    return;
+  }
+  steamClient.chatMessage(
+      "76561198392179703",
+      `${userstate["username"]}: ${message}`
+  );
+});

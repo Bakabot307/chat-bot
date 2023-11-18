@@ -194,7 +194,7 @@ if (isBotRunning==false) {
       }
   );
 }
-  }
+
 
 
 

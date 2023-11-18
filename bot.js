@@ -74,6 +74,13 @@ steamClientMain.on("error", function (e) {
 });
 
 function relogAfterDelay() {
+  const delay = 60000;
+  console.log("gonna retry after", delay / 1000, "s");
+  setTimeout(() => {
+    console.log(`Relogging...`);
+    loginDetails.twoFactorCode= steamTotp.generateAuthCode(process.env.STEAM_SHARED_SECRET)
+    steamClient.logOn(loginDetails);
+  }, delay);
 }
 
 steamClient.logOn({

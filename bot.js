@@ -44,7 +44,7 @@ twitchClient.connect().catch(console.log("connect to bot"));
 const steamClient = new SteamUser();
 const steamClientMain = new SteamUser();
 
-let isBotRunning = true;
+let isBotRunning = false;
 
 const loginDetails = {
   accountName: process.env.STEAM_USER_NAME,

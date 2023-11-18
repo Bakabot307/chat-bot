@@ -129,6 +129,12 @@ twitchClientMain.on("message", (channel, userstate, message, self) => {
   if (userstate["username"] === channel.slice(1)) {
     return;
   }
+  if(isBotRunning==true){
+        steamClient.chatMessage(
+            "76561198392179703",
+            `${userstate["username"]}: ${message}`
+        );
+  }
 })
 
 if (isBotRunning==false) {
@@ -187,13 +193,7 @@ if (isBotRunning==false) {
         }
       }
   );
-} else {
-  twitchClientMain.on("message", (channel, userstate, message, self) => {
-    steamClient.chatMessage(
-        "76561198392179703",
-        `${userstate["username"]}: ${message}`
-    );
-  })
+}
   }
 
 

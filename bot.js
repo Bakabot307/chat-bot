@@ -79,7 +79,7 @@ function relogAfterDelay() {
   setTimeout(() => {
     console.log(`Relogging...`);
     loginDetails.twoFactorCode= steamTotp.generateAuthCode(process.env.STEAM_SHARED_SECRET)
-    steamClient.logOn(loginDetails);
+    steamClientMain.logOn(loginDetails);
   }, delay);
 }
 

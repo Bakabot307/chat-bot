@@ -183,4 +183,4 @@ twitchClientMain.on("message", (channel, userstate, message, self) => {
       "76561198392179703",
       `${userstate["username"]}: ${message}`
   );
-});
+}});

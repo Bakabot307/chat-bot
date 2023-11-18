@@ -3,7 +3,6 @@ const SteamUser = require("steam-user");
 require("dotenv").config();
 const request = require("request");
 const steamTotp = require("steam-totp");
-const express = require("express");
 const catApi = require("random-cat-img");
 const app = express();
 const express = require("express");

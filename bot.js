@@ -4,10 +4,10 @@ require("dotenv").config();
 const request = require("request");
 const steamTotp = require("steam-totp");
 const catApi = require("random-cat-img");
-const app = express();
 const express = require("express");
 const port = process.env.PORT || 3000;
 
+const app = express();
 app.get("/", (req, res) => {
   res.send("Bakabobo " + port);
 });

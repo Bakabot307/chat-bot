@@ -142,17 +142,15 @@ twitchClientMain.on("message", (channel, userstate, message, self) => {
         if (isBotRunning == false) {
           const result = Math.floor(Math.random() * 3) + 1;
           if (result === 1) {
-            try {
-  const res = await catApi();
-  steamClientMain.chatTyping(steamID);
-  steamClientMain.chatMessage(
-    steamID,
-    `${res.data.message}`,
-    SteamUser.EChatEntryType.ChatMsg
-  );
-} catch (error) {
-  console.error("Error fetching cat image:", error);
-}();
+                (async () => {
+              const res = await catApi();
+              steamClientMain.chatTyping(steamID);
+              steamClientMain.chatMessage(
+                  steamID,
+                  `${res.data.message}`,
+                  SteamUser.EChatEntryType.ChatMsg
+              );
+            })();
           } else if (result === 2) {
             request(
                 {

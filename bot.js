@@ -38,8 +38,8 @@ const twitchClientMain = new tmi.Client({
   },
   channels: ["bakabot1235"],
 });
-twitchClientMain.connect().catch(console.log("connect to main"));
-twitchClient.connect().catch(console.log("connect to bot"));
+twitchClientMain.connect().catch(err => console.error("Twitch Main Connection Error:", err));
+twitchClient.connect().catch(err => console.error("Twitch Bot Connection Error:", err));
 
 const steamClient = new SteamUser();
 const steamClientMain = new SteamUser();

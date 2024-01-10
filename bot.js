@@ -24,7 +24,7 @@ async function updateChannelTitle() {
       };
 
       // Fetch emotes
-      const responseEmote = await axios.get('https://7tv.io/v3/emote-sets/61e39d5677175547b4256a70');
+      const responseEmote = await axios.get('https://7tv.io/v3/emote-sets/659e7fd78bea51fbcfe11e35');
       if (responseEmote.status === 200) {
         const emotes = responseEmote.data.emotes;
         const randomEmote = emotes[Math.floor(Math.random() * emotes.length)];

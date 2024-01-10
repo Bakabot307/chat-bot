@@ -172,10 +172,13 @@ twitchClientMain.on("message", (channel, userstate, message, self) => {
       (userstate["mod"] || userstate["username"] === channel.slice(1))
   ) {
     isBotRunning = true;
+	
     twitchClient.say(
         channel,
         `/me bot started by ${userstate["username"]} Plotge `
     );
+	setInterval(updateChannelTitle, 300000);
+        updateChannelTitle();
   } else if (
       command === "!stop" &&
       (userstate["mod"] || userstate["username"] === channel.slice(1))
@@ -197,9 +200,7 @@ twitchClientMain.on("message", (channel, userstate, message, self) => {
         steamClient.chatMessage(
             "76561198392179703",
             `${userstate["username"]}: ${message}`
-        );
-		setInterval(updateChannelTitle, 300000);
-        updateChannelTitle();
+        );		
   }
 })
 

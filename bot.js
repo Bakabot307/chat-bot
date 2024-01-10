@@ -167,7 +167,7 @@ steamClient.on("friendMessage", function (steamId, message) {
 });
 twitchClientMain.on("message", (channel, userstate, message, self) => {
   const command = message.trim().split(" ")[0];
-  const interval;
+  let intervalBot;
   if (
       command === "!start" &&
       (userstate["mod"] || userstate["username"] === channel.slice(1))
@@ -193,7 +193,7 @@ twitchClientMain.on("message", (channel, userstate, message, self) => {
         "76561198392179703",
         `/me bot stopped by ${userstate["username"]} NONONONONO sending cat pics`
     );
-	clearInterval(interval)
+	clearInterval(intervalBot)
   }
   if (userstate["username"] === channel.slice(1)) {
     return;

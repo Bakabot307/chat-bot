@@ -36,7 +36,7 @@ async function updateChannelTitle() {
 
         const response = await axios.patch(`https://api.twitch.tv/helix/channels?broadcaster_id=${broadcasterId}`, data, { headers });
 
-        console.log('Channel title updated successfully:', response.data);
+        console.log('Channel title updated successfully:', data.title);
       } else {
         console.error('Error fetching emotes:', responseEmote.statusText);
       }
@@ -69,8 +69,7 @@ async function getBroadcasterId(accessToken) {
     throw error;
   }
 }
-setInterval(updateChannelTitle, 30000);
-updateChannelTitle();
+
 
 const app = express();
 app.get("/", (req, res) => {
@@ -199,6 +198,8 @@ twitchClientMain.on("message", (channel, userstate, message, self) => {
             "76561198392179703",
             `${userstate["username"]}: ${message}`
         );
+		setInterval(updateChannelTitle, 300000);
+        updateChannelTitle();
   }
 })
 

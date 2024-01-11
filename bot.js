@@ -248,9 +248,10 @@ steamClient.on("friendMessage", function (steamId, message) {
     twitchClientMain.say("bakabot1235", message);
   }
 });
+ let intervalBot;
 twitchClientMain.on("message", (channel, userstate, message, self) => {
   const command = message.trim().split(" ")[0];
-  let intervalBot;
+ 
   if (
       command === "!start" &&
       (userstate["mod"] || userstate["username"] === channel.slice(1))

@@ -6,46 +6,129 @@ const steamTotp = require("steam-totp");
 const catApi = require("random-cat-img");
 const express = require("express");
 const port = process.env.PORT || 3000;
-
+const util = require('util');
+let refreshTOken;
 const axios = require('axios');
 const clientId = 'qarqfcwzn8owibki0nb0hdc0thwfxb';
-const accessToken = 'xaoc74emha2artpm28o2ujg8xps9yq';
+const clientSecret = 'l39js4ios95bjxstrvsans0cb50wi5';
+const twitchTokenRefreshUrl = 'https://id.twitch.tv/oauth2/token';
+const mysql = require('mysql');
+
+// Create a connection to the database
+const pool = mysql.createPool({
+  connectionLimit: 10,
+  host: 'sql12.freemysqlhosting.net',
+  user: 'sql12676136',
+  password: 'xAq42LntFh',
+  database: 'sql12676136'
+});
+
+const query = util.promisify(pool.query).bind(pool);
+// Function to save the new access token (replace this with your actual logic)
+async function refreshAccessToken(refreshToken) {
+  try {
+    const refreshParams = new URLSearchParams({
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken,
+      client_id: clientId,
+      client_secret: clientSecret,
+    });
+
+    // Perform the token refresh request
+    const response = await axios.post(twitchTokenRefreshUrl, refreshParams);
+
+    // Extract the new access token from the response
+    const newAccessToken = response.data.access_token;
+	const newRefreshToken = response.data.refresh_token;
+    // Update the 'token_twitch' table with the new access token
+    const updateSql = 'UPDATE token_twitch SET access_token = ?, refresh_token = ? where refresh_token = ?';
+    const updateData = [newAccessToken,newRefreshToken,refreshToken];
+
+    const updateResults = await query(updateSql, updateData);
+
+    console.log('Access token updated. Rows affected:', updateResults.affectedRows);
+
+	accessToken=newAccessToken;
+  } catch (error) {
+    console.error('Error in refreshAccessToken:', error.message);
+    return null;
+  }
+}
+
+
+async function getTokens() {
+  try {
+    const selectSql = 'SELECT access_token, refresh_token FROM token_twitch';
+    const selectResults = await query(selectSql);
+
+    if (selectResults.length > 0) {
+      const accessToken = selectResults[0].access_token;
+      const refreshToken = selectResults[0].refresh_token;
+      return { accessToken, refreshToken };
+    } else {
+      console.error('No data retrieved from the database.');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error in getTokens:', error.message);
+    return null;
+  }
+}
 
 async function updateChannelTitle() {
   try {
-    // Fetch the broadcaster ID using the access token
-    const broadcasterId = await getBroadcasterId(accessToken);
+    const tokens = await getTokens();    
+    if (tokens) {
+      const { accessToken, refreshToken } = tokens;
+      refreshTOken=refreshToken;
+      // Fetch the broadcaster ID using the access token
+      const broadcasterId = await getBroadcasterId(accessToken);
 
-    if (broadcasterId) {
-      const headers = {
-        Authorization: `Bearer ${accessToken}`,
-        'Client-Id': clientId,
-        'Content-Type': 'application/json',
-      };
-
-      // Fetch emotes
-      const responseEmote = await axios.get('https://7tv.io/v3/emote-sets/659e7fd78bea51fbcfe11e35');
-      if (responseEmote.status === 200) {
-        const emotes = responseEmote.data.emotes;
-        const randomEmote = emotes[Math.floor(Math.random() * emotes.length)];
-
-        // Update channel title with the random emote name
-        const data = {
-          title: randomEmote.name,
+      if (broadcasterId) {
+        const headers = {
+          Authorization: `Bearer ${accessToken}`,
+          'Client-Id': clientId,
+          'Content-Type': 'application/json',
         };
 
-        const response = await axios.patch(`https://api.twitch.tv/helix/channels?broadcaster_id=${broadcasterId}`, data, { headers });
+        // Fetch emotes
+        const responseEmote = await axios.get('https://7tv.io/v3/emote-sets/659e7fd78bea51fbcfe11e35');
+        if (responseEmote.status === 200) {
+          const emotes = responseEmote.data.emotes;
+          const randomEmote = emotes[Math.floor(Math.random() * emotes.length)];
 
-        console.log('Channel title updated successfully:', data.title);
+          // Update channel title with the random emote name
+          const data = {
+            title: randomEmote.name,
+          };
+
+          const response = await axios.patch(`https://api.twitch.tv/helix/channels?broadcaster_id=${broadcasterId}`, data, { headers });
+
+          console.log('Channel title updated successfully:', data.title);
+        } else {
+          console.error('Error fetching emotes:', responseEmote.statusText);
+        }
       } else {
-        console.error('Error fetching emotes:', responseEmote.statusText);
+        console.error('Error: Broadcaster ID not found.');
       }
     } else {
-      console.error('Error: Broadcaster ID not found.');
+      console.error('Error: No tokens retrieved.');
     }
-  } catch (error) {
-    console.error('Error updating channel title:', error.message);
-    throw error;
+} catch (error) {
+    if (error.response && error.response.status === 401) {
+      try {
+        await refreshAccessToken(refreshTOken); // Use refreshTOken here
+        await updateChannelTitle();
+      } catch (refreshError) {
+        console.error('Error updating channel title:', refreshError.message);
+        // Handle the error appropriately or throw it if needed
+        throw refreshError;
+      }
+    } else {
+      console.error('Error updating channel title:', error.message);
+      // Handle the error appropriately or throw it if needed
+      throw error;
+    }
   }
 }
 
@@ -72,7 +155,7 @@ async function getBroadcasterId(accessToken) {
 
 
 const app = express();
-app.get("/", (req, res) => {
+app.get("/", (req, res) => {	
   res.send("Bakabobo " + port);
 });
 

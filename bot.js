@@ -261,7 +261,7 @@ twitchClientMain.on("message", (channel, userstate, message, self) => {
         channel,
         `/me bot started by ${userstate["username"]} Plotge `
     );
-	interval = setInterval(updateChannelTitle, 300000);
+	intervalBot = setInterval(updateChannelTitle, 300000);
     updateChannelTitle();
   } else if (
       command === "!stop" &&

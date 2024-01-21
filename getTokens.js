@@ -25,52 +25,53 @@ connection.connect((err) => {
   console.log('Connected to MySQL database');
 });
 
-
 app.get('/auth', (req, res) => {
-  // Redirect the user to the Twitch authorization URL
-  res.redirect(`https://id.twitch.tv/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=channel:manage:broadcast`);
+  res.redirect(`https://id.twitch.tv/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=channel:manage:broadcast+channel:manage:moderators+channel:manage:vips`);
 });
 
 app.get('/', async (req, res) => {
-  // Handle the callback from Twitch
-  const code = req.query.code;
+  try {
+    const code = req.query.code;
+    const tokenResponse = await axios.post('https://id.twitch.tv/oauth2/token', null, {
+      params: {
+        client_id: clientId,
+        client_secret: clientSecret,
+        code: code,
+        grant_type: 'authorization_code',
+        redirect_uri: redirectUri,
+      },
+    });
 
-  // Exchange the authorization code for tokens
-  const tokenResponse = await axios.post('https://id.twitch.tv/oauth2/token', null, {
-    params: {
-      client_id: clientId,
-      client_secret: clientSecret,
-      code: code,
-      grant_type: 'authorization_code',
-      redirect_uri: redirectUri,
-    },
-  });
+	   let deleteSql = "DELETE FROM token_twitch";
+		await new Promise((resolve, reject) => {
+      connection.query(deleteSql, (error, results) => {
+        if (error) return reject(error);
+        console.log("Number of records deleted: " + results.affectedRows);
+        resolve();
+      });
+    });
 
-  // Extract tokens from the response
-  const accessToken = tokenResponse.data.access_token;
-  const refreshToken = tokenResponse.data.refresh_token;
-  
-let sql = `INSERT INTO token_twitch (access_token, refresh_token) VALUES (?, ?)`;
-let sql2 = "DELETE FROM token_twitch";
-let data = [accessToken, refreshToken];
-connection.connect(function(err) {	
-  if (err) throw err;  
-  con.query(sql2, function (err, result) {
-    if (err) throw err;
-    console.log("Number of records deleted: " + result.affectedRows);
-  });
-});
-connection.query(sql, data, (error, results, fields) => {
-  if (error) return console.error(error.message);
-  console.log('Rows affected:', results.affectedRows);
-});
+    const accessToken = tokenResponse.data.access_token;
+    const refreshToken = tokenResponse.data.refresh_token;
+	
+	
+	
+    let sql = `INSERT INTO token_twitch (access_token, refresh_token) VALUES (?, ?) ON DUPLICATE KEY UPDATE access_token = VALUES(access_token), refresh_token = VALUES(refresh_token)`;
+    let data = [accessToken, refreshToken];
 
+    connection.query(sql, data, (error, results, fields) => {
+      if (error) throw error;
+      console.log('Rows affected:', results.affectedRows);
+    });
 
-  // You can now use accessToken and refreshToken as needed
-  console.log('Access Token:', accessToken);
-  console.log('Refresh Token:', refreshToken);
+    console.log('Access Token:', accessToken);
+    console.log('Refresh Token:', refreshToken);
 
-  res.send('Tokens obtained successfully!');
+    res.send('Tokens obtained successfully!');
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('An error occurred');
+  }
 });
 
 app.listen(port, () => {

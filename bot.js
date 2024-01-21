@@ -50,7 +50,7 @@ async function refreshAccessToken(refreshToken) {
 
 	accessToken=newAccessToken;
   } catch (error) {
-    console.error('Error in refreshAccessToken:', error.message);
+    console.error('Error in refreshAccessToken:', error);
     return null;
   }
 }
@@ -248,9 +248,120 @@ steamClient.on("friendMessage", function (steamId, message) {
     twitchClientMain.say("bakabot1235", message);
   }
 });
- let intervalBot;
+
+async function addModerator(userId) {
+    let refreshTOKEN;
+    try {
+        const tokens = await getTokens(); 
+        const { accessToken, refreshToken } = tokens;    
+        refreshTOKEN = refreshToken;
+        const broadcasterId = await getBroadcasterId(accessToken);
+        const url = 'https://api.twitch.tv/helix/moderation/moderators';
+        const headers = {
+            'Client-ID': clientId,
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+        };
+        const data = {
+            broadcaster_id: broadcasterId,
+            user_id: userId
+        };
+
+        await axios.post(url, data, { headers });
+    } catch (error) {
+            if (error.response && error.response.status === 401) {
+      try {
+        await refreshAccessToken(refreshTOKEN); // Use refreshTOken here
+        await addModerator(userId);
+      } catch (refreshError) {
+        console.error('Error updating channel title:', refreshError.message);
+        // Handle the error appropriately or throw it if needed
+        throw refreshError;
+      }
+    } else if (error.response && error.response.status === 422) {
+            // Check the specific error message if possible to confirm the user is a VIP
+            await removeVIP(userId);
+            await addModerator(userId);
+        } else {
+            console.error('Error in addModerator:', error.message);
+            throw error;
+        }
+  }
+}
+async function removeModerator(userId) {
+    let refreshTOKEN;
+    try {
+        const tokens = await getTokens();
+        const { accessToken, refreshToken } = tokens;
+        refreshTOKEN = refreshToken;
+        const broadcasterId = await getBroadcasterId(accessToken);
+        const url = `https://api.twitch.tv/helix/moderation/moderators?broadcaster_id=${broadcasterId}&user_id=${userId}`;
+        const headers = {
+            'Client-ID': clientId,
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+        };
+
+        await axios.delete(url, { headers });
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            try {
+                await refreshAccessToken(refreshTOKEN);
+                await removeModerator(userId);
+            } catch (refreshError) {
+                console.error('Error refreshing token:', refreshError.message);
+                throw refreshError;
+            }
+        } else {
+            console.error('Error in removeModerator:', error.message);
+            throw error;
+        }
+    }
+}
+    
+
+
+async function removeVIP(userId) {
+    try {
+        const { accessToken, refreshToken } = await getTokens(); 
+        const broadcasterId = await getBroadcasterId(accessToken);
+        const url = `https://api.twitch.tv/helix/channels/vips?broadcaster_id=${broadcasterId}&user_id=${userId}`;
+        const headers = {
+            'Client-ID': clientId,
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+        };
+        await axios.delete(url, { headers });
+    } catch (error) {
+        throw error;
+    }
+}
+
+async function verifyTokenScopes() {
+	const tokens = await getTokens(); 
+        const { accessToken, refreshToken } = tokens;  
+    try {
+        const response = await axios.get('https://id.twitch.tv/oauth2/validate', {
+            headers: {
+                'Authorization': `OAuth ${accessToken}`
+            }
+        });
+        console.log('Token details:', response.data);
+        // Here, you can check if 'response.data.scopes' includes 'channel:manage:moderators'
+    } catch (error) {
+        console.error('Error verifying token:', error);
+    }
+}
+let intervalBot;
 twitchClientMain.on("message", (channel, userstate, message, self) => {
   const command = message.trim().split(" ")[0];
+  if(command==='[nowamod' && userstate["username"] === 'bakabot1135'){
+	  addModerator(message.trim().split(" ")[1]);
+	  removeModerator(message.trim().split(" ")[2].slice(0, -1))
+  }
+  if(command==='checktoken' && userstate["username"] === 'bakabot1135'){
+	  verifyTokenScopes()
+  }
  
   if (
       command === "!start" &&
@@ -272,11 +383,11 @@ twitchClientMain.on("message", (channel, userstate, message, self) => {
     isBotRunning = false;
     twitchClient.say(
         channel,
-        `/me bot stopped by ${userstate["username"]} NONONONONO sending cat pics `
+        `/me bot stopped by ${userstate["username"]}`
     );
     steamClient.chatMessage(
         "76561198392179703",
-        `/me bot stopped by ${userstate["username"]} NONONONONO sending cat pics`
+        `/me bot stopped by ${userstate["username"]}`
     );
 	clearInterval(intervalBot)
   }
@@ -287,68 +398,9 @@ twitchClientMain.on("message", (channel, userstate, message, self) => {
         steamClient.chatMessage(
             "76561198392179703",
             `${userstate["username"]}: ${message}`
-        );		
+        );
   }
-})
-
-
-  steamClientMain.on("friendMessage", (steamID, message) => {
-        if (isBotRunning == false) {
-          const result = Math.floor(Math.random() * 3) + 1;
-          if (result === 1) {
-                (async () => {
-              const res = await catApi();
-              steamClientMain.chatTyping(steamID);
-              steamClientMain.chatMessage(
-                  steamID,
-                  `${res.data.message}`,
-                  SteamUser.EChatEntryType.ChatMsg
-              );
-            })();
-          } else if (result === 2) {
-            request(
-                {
-                  url: "https://aws.random.cat/meow",
-                  json: true,
-                },
-                (error, response, body) => {
-                  if (!error && response.statusCode === 200) {
-                    // Send a message to the Steam user with the URL of the random cat image
-                    steamClientMain.chatTyping(steamID);
-                    steamClientMain.chatMessage(
-                        steamID,
-                        `${body.file}`,
-                        SteamUser.EChatEntryType.ChatMsg
-                    );
-                  } else {
-                    console.error(`Error getting cat image: ${error}`);
-                  }
-                }
-            );
-          } else {
-            request(
-                {
-                  url: "https://api.thecatapi.com/v1/images/search",
-                  json: true,
-                },
-                (error, response, body) => {
-                  if (!error && response.statusCode === 200) {
-                    // Send a message to the Steam user with the URL of the random cat image
-                    steamClientMain.chatTyping(steamID);
-                    steamClientMain.chatMessage(
-                        steamID,
-                        `${body[0].url}`,
-                        SteamUser.EChatEntryType.ChatMsg
-                    );
-                  } else {
-                    console.error(`Error getting cat image: ${error}`);
-                  }
-                }
-            );
-          }
-        }
-      }
-  );
+})     
 
 
 

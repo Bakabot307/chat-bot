@@ -1,28 +1,19 @@
 const express = require('express');
 const axios = require('axios');
+const { MongoClient, ServerApiVersion } = require('mongodb');
 const app = express();
 const port = 3000;
 
 const clientId = 'qarqfcwzn8owibki0nb0hdc0thwfxb';
 const clientSecret = 'l39js4ios95bjxstrvsans0cb50wi5';
 const redirectUri = 'http://localhost:3000'; // Update with your redirect URI
-const mysql = require('mysql');
 
-// Create a connection to the database
-const connection = mysql.createConnection({
-  host: 'sql12.freemysqlhosting.net',
-  user: 'sql12676136',
-  password: 'xAq42LntFh',
-  database: 'sql12676136'
-});
+// MongoDB Atlas connection string
+const uri = "mongodb+srv://thangptpk01991:1nQRFJ2MMB4RKiBT@bottokens.vsdhnuw.mongodb.net/?retryWrites=true&w=majority";
 
-// Connect to the database
-connection.connect((err) => {
-  if (err) {
-    console.error('Error connecting to MySQL:', err);
-    return;
-  }
-  console.log('Connected to MySQL database');
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(uri, {
+  serverApi: ServerApiVersion.v1
 });
 
 app.get('/auth', (req, res) => {
@@ -31,6 +22,10 @@ app.get('/auth', (req, res) => {
 
 app.get('/', async (req, res) => {
   try {
+    await client.connect();
+    const db = client.db('bot_twitch'); // Replace with your database name
+    const collection = db.collection('token_twitch'); // Replace with your collection name
+
     const code = req.query.code;
     const tokenResponse = await axios.post('https://id.twitch.tv/oauth2/token', null, {
       params: {
@@ -42,27 +37,11 @@ app.get('/', async (req, res) => {
       },
     });
 
-	   let deleteSql = "DELETE FROM token_twitch";
-		await new Promise((resolve, reject) => {
-      connection.query(deleteSql, (error, results) => {
-        if (error) return reject(error);
-        console.log("Number of records deleted: " + results.affectedRows);
-        resolve();
-      });
-    });
-
     const accessToken = tokenResponse.data.access_token;
     const refreshToken = tokenResponse.data.refresh_token;
-	
-	
-	
-    let sql = `INSERT INTO token_twitch (access_token, refresh_token) VALUES (?, ?) ON DUPLICATE KEY UPDATE access_token = VALUES(access_token), refresh_token = VALUES(refresh_token)`;
-    let data = [accessToken, refreshToken];
 
-    connection.query(sql, data, (error, results, fields) => {
-      if (error) throw error;
-      console.log('Rows affected:', results.affectedRows);
-    });
+    // Replace or insert the new token
+    await collection.updateOne({}, { $set: { access_token: accessToken, refresh_token: refreshToken } }, { upsert: true });
 
     console.log('Access Token:', accessToken);
     console.log('Refresh Token:', refreshToken);
@@ -71,6 +50,8 @@ app.get('/', async (req, res) => {
   } catch (error) {
     console.error('Error:', error);
     res.status(500).send('An error occurred');
+  } finally {
+    await client.close();
   }
 });
 

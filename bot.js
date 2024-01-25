@@ -3,7 +3,6 @@ const SteamUser = require("steam-user");
 require("dotenv").config();
 const request = require("request");
 const steamTotp = require("steam-totp");
-const catApi = require("random-cat-img");
 const express = require("express");
 const port = process.env.PORT || 3000;
 const util = require('util');
@@ -12,43 +11,31 @@ const axios = require('axios');
 const clientId = 'qarqfcwzn8owibki0nb0hdc0thwfxb';
 const clientSecret = 'l39js4ios95bjxstrvsans0cb50wi5';
 const twitchTokenRefreshUrl = 'https://id.twitch.tv/oauth2/token';
-const mysql = require('mysql');
 
-// Create a connection to the database
-const pool = mysql.createPool({
-  connectionLimit: 10,
-  host: 'sql12.freemysqlhosting.net',
-  user: 'sql12676136',
-  password: 'xAq42LntFh',
-  database: 'sql12676136'
+const { MongoClient, ServerApiVersion } = require('mongodb');
+
+const uri = "mongodb+srv://thangptpk01991:1nQRFJ2MMB4RKiBT@bottokens.vsdhnuw.mongodb.net/?retryWrites=true&w=majority";
+const client = new MongoClient(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverApi: ServerApiVersion.v1
 });
 
-const query = util.promisify(pool.query).bind(pool);
-// Function to save the new access token (replace this with your actual logic)
+const database = client.db('bot_twitch');
+const collection = database.collection('token_twitch');
+
+
 async function refreshAccessToken(refreshToken) {
   try {
-    const refreshParams = new URLSearchParams({
-      grant_type: 'refresh_token',
-      refresh_token: refreshToken,
-      client_id: clientId,
-      client_secret: clientSecret,
-    });
+    // ... existing code to get new access token ...
 
-    // Perform the token refresh request
-    const response = await axios.post(twitchTokenRefreshUrl, refreshParams);
+    await collection.updateOne(
+      { refresh_token: refreshToken },
+      { $set: { access_token: newAccessToken, refresh_token: newRefreshToken } },
+      { upsert: true }
+    );
 
-    // Extract the new access token from the response
-    const newAccessToken = response.data.access_token;
-	const newRefreshToken = response.data.refresh_token;
-    // Update the 'token_twitch' table with the new access token
-    const updateSql = 'UPDATE token_twitch SET access_token = ?, refresh_token = ? where refresh_token = ?';
-    const updateData = [newAccessToken,newRefreshToken,refreshToken];
-
-    const updateResults = await query(updateSql, updateData);
-
-    console.log('Access token updated. Rows affected:', updateResults.affectedRows);
-
-	accessToken=newAccessToken;
+    console.log('Access token updated.');
   } catch (error) {
     console.error('Error in refreshAccessToken:', error);
     return null;
@@ -58,19 +45,15 @@ async function refreshAccessToken(refreshToken) {
 
 async function getTokens() {
   try {
-    const selectSql = 'SELECT access_token, refresh_token FROM token_twitch';
-    const selectResults = await query(selectSql);
-
-    if (selectResults.length > 0) {
-      const accessToken = selectResults[0].access_token;
-      const refreshToken = selectResults[0].refresh_token;
-      return { accessToken, refreshToken };
+    const tokenData = await collection.findOne({});
+    if (tokenData) {
+      return { accessToken: tokenData.access_token, refreshToken: tokenData.refresh_token };
     } else {
       console.error('No data retrieved from the database.');
       return null;
     }
   } catch (error) {
-    console.error('Error in getTokens:', error.message);
+    console.error('Error in getTokens:', error);
     return null;
   }
 }

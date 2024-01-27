@@ -25,8 +25,7 @@ const database = client.db('bot_twitch');
 const collection = database.collection('token_twitch');
 
 
-async function refreshAccessToken(refreshToken) {
-  try {
+async function refreshAccessToken(refreshToken) { 
       try {
     const refreshParams = new URLSearchParams({
       grant_type: 'refresh_token',

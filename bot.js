@@ -27,7 +27,18 @@ const collection = database.collection('token_twitch');
 
 async function refreshAccessToken(refreshToken) {
   try {
-    // ... existing code to get new access token ...
+      try {
+    const refreshParams = new URLSearchParams({
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken,
+      client_id: clientId,
+      client_secret: clientSecret,
+    });
+    // Perform the token refresh request
+    const response = await axios.post(twitchTokenRefreshUrl, refreshParams);
+    // Extract the new access token from the response
+    const newAccessToken = response.data.access_token;
+	const newRefreshToken = response.data.refresh_token;
 
     await collection.updateOne(
       { refresh_token: refreshToken },

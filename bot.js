@@ -183,9 +183,6 @@ twitchClient.connect().catch(err => console.error("Twitch Bot Connection Error:"
 
 const steamClient = new SteamUser();
 const steamClientMain = new SteamUser();
-
-let isBotRunning = false;
-
 const loginDetails = {
   accountName: process.env.STEAM_USER_NAME,
   password: process.env.STEAM_PASSWORD,
@@ -195,16 +192,56 @@ const loginDetails = {
 
 steamClientMain.logOn(loginDetails);
 
+let dotaLaunchedByBot = false; // Flag to indicate if Dota 2 was launched by the bot
+let isBotRunning = false; // Flag to track the bot's operational state
+let intervalBot;
+
 steamClientMain.on('playingState', function(blocked, playingApp) {
-  if(blocked){
-    console.log("playing: ", playingApp)
-    steamClientMain.setPersona(SteamUser.EPersonaState.Busy);
-  } else{
-    console.log("not playing anything")
-    steamClientMain.setPersona(SteamUser.EPersonaState.Busy);
-    steamClientMain.gamesPlayed([570])
+  if (blocked && playingApp === 570) { // Dota 2 has started
+    console.log("Started playing Dota 2.");
+    if (!dotaLaunchedByBot && !isBotRunning) {
+      console.log("Dota 2 opened manually, starting bot...");
+      startBot(); // Start the bot's operations
+    }
+  } else if (!blocked && !dotaLaunchedByBot && isBotRunning) { // Dota 2 has stopped
+    console.log("Stopped playing Dota 2, stopping bot...");
+    stopBot(); // Stop the bot's operations
+  }
+
+  // Reset the dotaLaunchedByBot flag if not playing
+  if (playingApp !== 570) {
+    dotaLaunchedByBot = false;
   }
 });
+
+function launchDota2ByBot() {
+  dotaLaunchedByBot = true; // Indicate the bot is launching Dota 2
+  steamClientMain.gamesPlayed([570]); // Launch Dota 2
+  console.log("Dota 2 launched by the bot");
+}
+
+function startBot() {
+  if (!isBotRunning) {
+    isBotRunning = true;
+    console.log("Bot started.");
+    // Send a message to Twitch chat to notify that the bot has started
+    twitchClient.say("bakabot1235", "Bot has started and is now active!");
+    // Add your code to start the bot's activities, such as intervals or event listeners
+    intervalBot = setInterval(updateChannelTitle, 300000); // Example: Update channel title every 5 minutes
+  }
+}
+
+function stopBot() {
+  if (isBotRunning) {
+    isBotRunning = false;
+    console.log("Bot stopped.");
+    // Send a message to Twitch chat to notify that the bot has stopped
+    twitchClient.say("bakabot1235", "Bot has stopped and is no longer active.");
+    // Add your code to stop the bot's activities, such as clearing intervals
+    clearInterval(intervalBot); // Example: Stop the title update interval
+  }
+}
+
 steamClientMain.on("error", function (e) {
   if (e.eresult === SteamUser.EResult.LoggedInElsewhere) {
     console.log("logged somewhere else");
@@ -214,12 +251,23 @@ steamClientMain.on("error", function (e) {
 });
 
 function relogAfterDelay() {
-  const delay = 60000;
-  console.log("gonna retry after", delay / 1000, "s");
+  const delay = 60000; // Delay before attempting to relog, in milliseconds
+  console.log(`Will attempt to relog after ${delay / 1000} seconds.`);
+
   setTimeout(() => {
-    console.log(`Relogging...`);
-    loginDetails.twoFactorCode= steamTotp.generateAuthCode(process.env.STEAM_SHARED_SECRET)
-    steamClientMain.logOn(loginDetails);
+    // Check if the client is already logged in before attempting to relog
+    if (!steamClientMain.loggedOn) {
+      console.log("Relogging into Steam...");
+      const loginDetails = {
+        accountName: process.env.STEAM_USER_NAME,
+        password: process.env.STEAM_PASSWORD,
+        twoFactorCode: steamTotp.generateAuthCode(process.env.STEAM_SHARED_SECRET),
+        rememberPassword: true,
+      };
+      steamClientMain.logOn(loginDetails);
+    } else {
+      console.log("Already logged into Steam, no need to relog.");
+    }
   }, delay);
 }
 
@@ -345,7 +393,7 @@ async function verifyTokenScopes() {
         console.error('Error verifying token:', error);
     }
 }
-let intervalBot;
+
 twitchClientMain.on("message", (channel, userstate, message, self) => {
   const command = message.trim().split(" ")[0];
   if(command==='[nowamod' && userstate["username"] === 'bakabot1135'){
@@ -354,36 +402,8 @@ twitchClientMain.on("message", (channel, userstate, message, self) => {
   }
   if(command==='checktoken' && userstate["username"] === 'bakabot1135'){
 	  verifyTokenScopes()
-  }
+  } 
  
-  if (
-      command === "!start" &&
-      (userstate["mod"] || userstate["username"] === channel.slice(1))
-  ) {
-    isBotRunning = true;
-	
-    twitchClient.say(
-        channel,
-        `/me bot started by ${userstate["username"]} Plotge `
-    );
-	updateChannelTitle();
-	intervalBot = setInterval(updateChannelTitle, 300000);
-    
-  } else if (
-      command === "!stop" &&
-      (userstate["mod"] || userstate["username"] === channel.slice(1))
-  ) {
-    isBotRunning = false;
-    twitchClient.say(
-        channel,
-        `/me bot stopped by ${userstate["username"]}`
-    );
-    steamClient.chatMessage(
-        "76561198392179703",
-        `/me bot stopped by ${userstate["username"]}`
-    );
-	clearInterval(intervalBot)
-  }
   if (userstate["username"] === channel.slice(1)) {
     return;
   }

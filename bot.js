@@ -226,7 +226,7 @@
 	    isBotRunning = true;
 	    console.log("Bot started.");
 	    // Send a message to Twitch chat to notify that the bot has started
-	    twitchClient.say("bakabot1235", "Bot has started and is now active!");
+	    twitchClient.say("bakabot1235", "/me Bot online Evilge");
 	    // Add your code to start the bot's activities, such as intervals or event listeners
 	    intervalBot = setInterval(updateChannelTitle, 300000); // Example: Update channel title every 5 minutes
 	  }
@@ -236,8 +236,6 @@
 	  if (isBotRunning) {
 	    isBotRunning = false;
 	    console.log("Bot stopped.");
-	    // Send a message to Twitch chat to notify that the bot has stopped
-	    twitchClient.say("bakabot1235", "Bot has stopped and is no longer active.");
 	    launchDota2ByBot()
 	    // Add your code to stop the bot's activities, such as clearing intervals
 	    clearInterval(intervalBot); // Example: Stop the title update interval
@@ -253,25 +251,25 @@
 	});
 	
 	function relogAfterDelay() {
-	  const delay = 60000; // Delay before attempting to relog, in milliseconds
-	  console.log(`Will attempt to relog after ${delay / 1000} seconds.`);
-	
-	  setTimeout(() => {
-	    // Check if the client is already logged in before attempting to relog
-	    if (!steamClientMain.loggedOn) {
-	      console.log("Relogging into Steam...");
-	      const loginDetails = {
-	        accountName: process.env.STEAM_USER_NAME,
-	        password: process.env.STEAM_PASSWORD,
-	        twoFactorCode: steamTotp.generateAuthCode(process.env.STEAM_SHARED_SECRET),
-	        rememberPassword: true,
-	      };
-	      steamClientMain.logOn(loginDetails);
-	    } else {
-	      console.log("Already logged into Steam, no need to relog.");
-	    }
-	  }, delay);
-	}
+  const delay = 60000; // Delay before attempting to relog, in milliseconds
+  console.log(`Will attempt to relog after ${delay / 1000} seconds.`);
+
+  setTimeout(() => {
+    // Check if the client is already logged in and Dota 2 was not launched manually before attempting to relog
+    if (!steamClientMain.loggedOn) {
+      console.log("Relogging into Steam...");
+      const loginDetails = {
+        accountName: process.env.STEAM_USER_NAME,
+        password: process.env.STEAM_PASSWORD,
+        twoFactorCode: steamTotp.generateAuthCode(process.env.STEAM_SHARED_SECRET),
+        rememberPassword: true,
+      };
+      steamClientMain.logOn(loginDetails);
+    } else {
+      console.log("Already logged into Steam or Dota 2 launched manually, no need to relog.");
+    }
+  }, delay);
+}
 	
 	steamClient.logOn({
 	  accountName: process.env.STEAM_USER_NAME_2,

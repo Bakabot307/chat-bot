@@ -217,6 +217,7 @@
 	function launchDota2ByBot() {
 	  dotaLaunchedByBot = true; // Indicate the bot is launching Dota 2
 	  steamClientMain.gamesPlayed([570]); // Launch Dota 2
+	  steamClientMain.setPersona(SteamUser.EPersonaState.Busy);
 	  console.log("Dota 2 launched by the bot");
 	}
 	

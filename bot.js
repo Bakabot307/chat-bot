@@ -236,6 +236,7 @@
 	  if (isBotRunning) {
 	    isBotRunning = false;
 	    console.log("Bot stopped.");
+            twitchClient.say("bakabot1235", "/me Bot offline pepeLost ");
 	    launchDota2ByBot()
 	    // Add your code to stop the bot's activities, such as clearing intervals
 	    clearInterval(intervalBot); // Example: Stop the title update interval

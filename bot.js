@@ -197,7 +197,7 @@
 	let intervalBot;
 	
 	steamClientMain.on('playingState', async function(blocked, playingApp) {
-		if (appId === 0) {
+		if (playingApp === 0) {
         console.log('Skipping request for appId 0.');
         launchDota2ByBot(); // Open Dota 2 by bot
         return;

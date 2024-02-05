@@ -255,11 +255,6 @@
   if (!isBotRunning) {
     isBotRunning = true;
     console.log("Bot started.");
-    // Send a message to Twitch chat to notify that the bot has started
-    console.log("Sending message to Twitch...");
-    twitchClient.say("bakabot1235", "/me Bot online Evilge");
-    console.log("Message sent to Twitch.");
-
     // Add your code to start the bot's activities, such as intervals or event listeners
     intervalBot = setInterval(updateChannelTitle, 300000); // Example: Update channel title every 5 minutes
   } else {
@@ -271,8 +266,7 @@
 	function stopBot() {
 	  if (isBotRunning) {
 	    isBotRunning = false;
-	    console.log("Bot stopped.");
-            twitchClient.say("bakabot1235", "/me Bot offline pepeLost ");
+	    console.log("Bot stopped.");        
 	    launchDota2ByBot()
 	    // Add your code to stop the bot's activities, such as clearing intervals
 	    clearInterval(intervalBot); // Example: Stop the title update interval

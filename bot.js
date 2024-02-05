@@ -197,6 +197,16 @@
 	let intervalBot;
 	
 steamClientMain.on('playingState', async function (blocked, playingApp) {
+ try {
+        const gameName = await getGameInfo(playingApp); // Make sure getGameInfo function is defined and works correctly
+        if (gameName) {
+            twitchClient.say("bakabot1235", `/me is now playing: ${gameName}`);
+        } else {
+            console.log("Game information not available.");
+        }
+    } catch (error) {
+        console.error('Error fetching game information:', error);
+    }
     if (playingApp === 0 && !isBotRunning) { // No game is currently being played
         console.log('No game is currently being played.');
         if (!dotaLaunchedByBot ) {
@@ -227,10 +237,12 @@ steamClientMain.on('playingState', async function (blocked, playingApp) {
 });
 
 function launchDota2ByBot() {
-    dotaLaunchedByBot = true; // Indicate the bot is launching Dota 2
-    console.log("Dota 2 launched by the bot.");
-    steamClientMain.gamesPlayed([570]); // Launch Dota 2
-    // Consider adding a delay before setting isBotRunning to true, if needed, to allow for the game to launch
+    // Delay the execution of the code inside setTimeout by 5000 milliseconds (5 seconds)
+    setTimeout(() => {
+        dotaLaunchedByBot = true; // Indicate the bot is launching Dota 2
+        console.log("Dota 2 is being launched by the bot after a 5-second delay.");
+        steamClientMain.gamesPlayed([570]); // Launch Dota 2
+    }, 5000); // 5000 milliseconds delay
 }
 
 function startBot() {

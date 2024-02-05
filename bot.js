@@ -303,12 +303,14 @@ function stopBot() {
 	  password: process.env.STEAM_PASSWORD_2,
 	});
 	
+
 	steamClient.on("loggedOn", () => {
 	  twitchClient.say(
 	      "bakabot1235",
 	      `/me steam connected HACKERMANS`
 	  );
 	  steamClient.setPersona(SteamUser.EPersonaState.Busy);
+          dotaLaunchedByBot = false;
 	});
 	
 	steamClient.on("friendMessage", function (steamId, message) {

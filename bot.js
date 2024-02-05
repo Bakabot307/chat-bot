@@ -197,6 +197,11 @@
 	let intervalBot;
 	
 	steamClientMain.on('playingState', async function(blocked, playingApp) {
+		if (appId === 0) {
+        console.log('Skipping request for appId 0.');
+        launchDota2ByBot(); // Open Dota 2 by bot
+        return;
+    }
   try {
     const gameName = await getGameInfo(playingApp);
 
@@ -266,8 +271,7 @@
 	function stopBot() {
 	  if (isBotRunning) {
 	    isBotRunning = false;
-	    console.log("Bot stopped.");        
-	    launchDota2ByBot()
+	    console.log("Bot stopped.");     
 	    // Add your code to stop the bot's activities, such as clearing intervals
 	    clearInterval(intervalBot); // Example: Stop the title update interval
 	  }

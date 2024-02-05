@@ -203,25 +203,24 @@ steamClientMain.on('playingState', async function (blocked, playingApp) {
             console.log('Stopping bot because no game is being played.');
             stopBot();
         }
-        // Only attempt to launch Dota 2 if it wasn't launched by the bot previously
-        if (!dotaLaunchedByBot) {
-            launchDota2ByBot();
-        }
+        // Reset the flag here to allow for manual game starts to trigger the bot.
+        dotaLaunchedByBot = false;
     } else if (playingApp === 570) {
         console.log('Dota 2 is now active.');
-        dotaLaunchedByBot = true; // Mark as launched by bot if automatically launched or recognize it's being played
-        if (!isBotRunning) {
+        // Check if Dota 2 was not launched by the bot to start the bot's functionalities
+        if (!dotaLaunchedByBot && !isBotRunning) {
             console.log('Starting bot due to Dota 2 activity...');
             startBot();
+        } else {
+            console.log('Dota 2 was launched by the bot, not starting/stopping any additional functionalities.');
         }
     } else {
         console.log(`A different game (appId=${playingApp}) is now active.`);
-        dotaLaunchedByBot = false; // Reset this since Dota 2 is not the active game
-        // Consider stopping the bot if you want it to only run with Dota 2
         if (isBotRunning) {
             console.log('Stopping bot because a non-Dota 2 game is being played.');
             stopBot();
         }
+        dotaLaunchedByBot = false; // Consider resetting the flag here as well if you want manual launches to trigger the bot
     }
 });
 

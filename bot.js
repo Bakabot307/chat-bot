@@ -197,15 +197,17 @@
 	let intervalBot;
 	
 steamClientMain.on('playingState', async function (blocked, playingApp) {
- try {
-        const gameName = await getGameInfo(playingApp); // Make sure getGameInfo function is defined and works correctly
-        if (gameName) {
-            twitchClient.say("bakabot1235", `/me is now playing: ${gameName}`);
-        } else {
-            console.log("Game information not available.");
+if (!dotaLaunchedByBot) {  // Check if the game was not launched by the bot
+        try {
+            const gameName = await getGameInfo(playingApp); // Ensure getGameInfo function is defined and works correctly
+            if (gameName) {
+                twitchClient.say("bakabot1235", `/me playing ${gameName}`);
+            } else {
+                console.log("Game information not available.");
+            }
+        } catch (error) {
+            console.error('Error fetching game information:', error);
         }
-    } catch (error) {
-        console.error('Error fetching game information:', error);
     }
     if (playingApp === 0 && !isBotRunning) { // No game is currently being played
         console.log('No game is currently being played.');
@@ -230,8 +232,7 @@ steamClientMain.on('playingState', async function (blocked, playingApp) {
         dotaLaunchedByBot = false; // Reset this flag whenever a new game is launched
         if (isBotRunning) {
             console.log('Stopping bot functionalities because a non-Dota 2 game is being played.');
-            stopBot();
-	    launchDota2ByBot();
+            stopBot();	   
         }
     }
 });
@@ -241,6 +242,8 @@ function launchDota2ByBot() {
     setTimeout(() => {
         dotaLaunchedByBot = true; // Indicate the bot is launching Dota 2
         console.log("Dota 2 is being launched by the bot after a 5-second delay.");
+        steamClientMain.setPersona(SteamUser.EPersonaState.Busy);
+        console.log("Steam status set to Busy.");
         steamClientMain.gamesPlayed([570]); // Launch Dota 2
     }, 5000); // 5000 milliseconds delay
 }

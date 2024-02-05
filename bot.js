@@ -196,23 +196,38 @@
 	let isBotRunning = false; // Flag to track the bot's operational state
 	let intervalBot;
 	
-	steamClientMain.on('playingState', function(blocked, playingApp) {
-	  if (blocked && playingApp === 570) { // Dota 2 has started
-	    console.log("Started playing Dota 2.");
-	    if (!dotaLaunchedByBot && !isBotRunning) {
-	      console.log("Dota 2 opened manually, starting bot...");
-	      startBot(); // Start the bot's operations
-	    }
-	  } else if (!blocked && !dotaLaunchedByBot && isBotRunning) { // Dota 2 has stopped
-	    console.log("Stopped playing Dota 2, stopping bot...");
-	    stopBot(); // Stop the bot's operations
-	  }
-	
-	  // Reset the dotaLaunchedByBot flag if not playing
-	  if (playingApp !== 570) {
-	    dotaLaunchedByBot = false;
-	  }
-	});
+	steamClientMain.on('playingState', async function(blocked, playingApp) {
+  const gameName = await getGameInfo(appId);
+  twitchClient.say("bakabot1235", "/me playing: " + gameName);
+  if (blocked && playingApp === 570) { // Dota 2 has started
+    console.log("Started playing Dota 2.");
+    if (!dotaLaunchedByBot && !isBotRunning) {
+      console.log("Dota 2 opened manually, starting bot...");
+      startBot(); // Start the bot's operations
+    }
+  } else if (!blocked && !dotaLaunchedByBot && isBotRunning) { // Dota 2 has stopped
+    console.log("Stopped playing Dota 2, stopping bot...");
+    stopBot(); // Stop the bot's operations
+  }
+
+  // Reset the dotaLaunchedByBot flag if not playing
+  if (playingApp !== 570) {
+    dotaLaunchedByBot = false;
+  }
+});
+	async function getGameInfo(appId) {
+         try {
+         const response = await axios.get(`https://api.steampowered.com/ISteamMarket/GetAssetPrices/v1/?appid=${appId}`);
+    
+         // Extract relevant information from the response
+         const gameName = response.data.name;  // Adjust this based on the actual structure of the API response
+
+         return gameName;
+         } catch (error) {
+         console.error('Error retrieving game information:', error.message);
+         return null;
+         }
+         }
 	
 	function launchDota2ByBot() {
 	  dotaLaunchedByBot = true; // Indicate the bot is launching Dota 2
@@ -280,7 +295,7 @@
 	steamClient.on("loggedOn", () => {
 	  twitchClient.say(
 	      "bakabot1235",
-	      `/me steam connected. Bot is online HACKERMANS`
+	      `/me steam connected HACKERMANS`
 	  );
 	  steamClient.setPersona(SteamUser.EPersonaState.Busy);
 	});

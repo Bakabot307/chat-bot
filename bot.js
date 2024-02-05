@@ -228,10 +228,10 @@
 
 	async function getGameInfo(appId) {
          try {
-         const response = await axios.get(`https://api.steampowered.com/ISteamMarket/GetAssetPrices/v1/?appid=${appId}`);
+         const response = await axios.get(`https://store.steampowered.com/api/appdetails/?appids=${appId}`);
     
          // Extract relevant information from the response
-         const gameName = response.data.name;  // Adjust this based on the actual structure of the API response
+         const gameName = response[appId].data.name;  // Adjust this based on the actual structure of the API response
 
          return gameName;
          } catch (error) {

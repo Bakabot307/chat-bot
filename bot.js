@@ -201,7 +201,9 @@
         if (isBotRunning) {
             console.log('Stopping bot because appId is 0.');
             stopBot();     
-        }
+        } else {
+	    launchDota2ByBot()
+	}
         return; // Stop further execution
     }
 
@@ -219,7 +221,7 @@
             if (!dotaLaunchedByBot && !isBotRunning) {
                 console.log("Dota 2 opened manually, starting bot...");
                 startBot();
-            }
+            } 
         }
 
         if (playingApp !== 570) {

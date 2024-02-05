@@ -222,7 +222,6 @@ steamClientMain.on('playingState', async function (blocked, playingApp) {
     }
 });
 
-
 function launchDota2ByBot() {
     dotaLaunchedByBot = true; // Indicate the bot is launching Dota 2
     console.log("Dota 2 launched by the bot.");
@@ -248,9 +247,8 @@ function stopBot() {
 	dotaLaunchedByBot = false;
         clearInterval(intervalBot); // Clear any ongoing intervals or bot activities
         // Do not automatically relaunch Dota 2 here to avoid creating a loop
-	    
     }
-}
+
 
 
 

@@ -203,26 +203,32 @@ steamClientMain.on('playingState', async function (blocked, playingApp) {
             console.log('Stopping bot because no game is being played.');
             stopBot();
         }
-        // Reset the flag here to allow for manual game starts to trigger the bot.
-        dotaLaunchedByBot = false;
+        // Always attempt to launch Dota 2 if it wasn't launched by the bot previously
+        // This ensures Dota 2 goes online automatically when you're not playing any other game
+        if (!dotaLaunchedByBot) {
+            launchDota2ByBot();
+        }
     } else if (playingApp === 570) {
         console.log('Dota 2 is now active.');
-        // Check if Dota 2 was not launched by the bot to start the bot's functionalities
+        // Here, we avoid checking dotaLaunchedByBot to ensure Dota 2 stays online
+        // But we do check it alongside isBotRunning before starting bot functionalities
         if (!dotaLaunchedByBot && !isBotRunning) {
-            console.log('Starting bot due to Dota 2 activity...');
+            console.log('Dota 2 opened manually, starting bot functionalities...');
             startBot();
         } else {
-            console.log('Dota 2 was launched by the bot, not starting/stopping any additional functionalities.');
+            console.log('Dota 2 is running.');
         }
     } else {
         console.log(`A different game (appId=${playingApp}) is now active.`);
         if (isBotRunning) {
-            console.log('Stopping bot because a non-Dota 2 game is being played.');
+            console.log('Stopping bot functionalities because a non-Dota 2 game is being played.');
             stopBot();
         }
-        dotaLaunchedByBot = false; // Consider resetting the flag here as well if you want manual launches to trigger the bot
+        // Reset dotaLaunchedByBot when a different game starts
+        dotaLaunchedByBot = false;
     }
 });
+
 
 function launchDota2ByBot() {
     dotaLaunchedByBot = true; // Indicate the bot is launching Dota 2

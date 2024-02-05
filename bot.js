@@ -197,24 +197,35 @@
 	let intervalBot;
 	
 	steamClientMain.on('playingState', async function(blocked, playingApp) {
-  const gameName = await getGameInfo(appId);
-  twitchClient.say("bakabot1235", "/me playing: " + gameName);
-  if (blocked && playingApp === 570) { // Dota 2 has started
-    console.log("Started playing Dota 2.");
-    if (!dotaLaunchedByBot && !isBotRunning) {
-      console.log("Dota 2 opened manually, starting bot...");
-      startBot(); // Start the bot's operations
-    }
-  } else if (!blocked && !dotaLaunchedByBot && isBotRunning) { // Dota 2 has stopped
-    console.log("Stopped playing Dota 2, stopping bot...");
-    stopBot(); // Stop the bot's operations
-  }
+  try {
+    const gameName = await getGameInfo(appId);
 
-  // Reset the dotaLaunchedByBot flag if not playing
-  if (playingApp !== 570) {
-    dotaLaunchedByBot = false;
+    if (gameName) {
+      twitchClient.say("bakabot1235", `/me playing: ${gameName}`);
+    } else {
+      console.log("Game information not available.");
+    }
+
+    if (blocked && playingApp === 570) {
+      console.log("Started playing Dota 2.");
+      if (!dotaLaunchedByBot && !isBotRunning) {
+        console.log("Dota 2 opened manually, starting bot...");
+        startBot();
+      }
+    } else if (!blocked && !dotaLaunchedByBot && isBotRunning) {
+      console.log("Stopped playing Dota 2, stopping bot...");
+      stopBot();
+    }
+
+    if (playingApp !== 570) {
+      dotaLaunchedByBot = false;
+    }
+  } catch (error) {
+    console.error('Error handling playingState event:', error);
   }
 });
+
+
 	async function getGameInfo(appId) {
          try {
          const response = await axios.get(`https://api.steampowered.com/ISteamMarket/GetAssetPrices/v1/?appid=${appId}`);

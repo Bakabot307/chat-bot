@@ -198,7 +198,7 @@
 	
 	steamClientMain.on('playingState', async function(blocked, playingApp) {
   try {
-    const gameName = await getGameInfo(appId);
+    const gameName = await getGameInfo(playingApp);
 
     if (gameName) {
       twitchClient.say("bakabot1235", `/me playing: ${gameName}`);

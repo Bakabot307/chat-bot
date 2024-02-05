@@ -196,18 +196,7 @@
 	let isBotRunning = false; // Flag to track the bot's operational state
 	let intervalBot;
 	
-	steamClientMain.on('playingState', async function(blocked, playingApp) {
-    if (playingApp === 0) {
-        if (isBotRunning) {
-            console.log('Stopping bot because appId is 0.');
-            stopBot();     
-        } else {
-	    launchDota2ByBot()
-	}
-        return; // Stop further execution
-    }
-
-    steamClientMain.on('playingState', async function (blocked, playingApp) {
+	steamClientMain.on('playingState', async function (blocked, playingApp) {
     if (playingApp === 0) {
         if (isBotRunning) {
             console.log('Stopping bot because appId is 0.');

@@ -285,6 +285,7 @@ function stopBot() {
     // Check if the client is already logged in and Dota 2 was not launched manually before attempting to relog
     if (!steamClientMain.loggedOn) {
       console.log("Relogging into Steam...");
+      dotaLaunchedByBot = false;
       const loginDetails = {
         accountName: process.env.STEAM_USER_NAME,
         password: process.env.STEAM_PASSWORD,
@@ -310,7 +311,6 @@ function stopBot() {
 	      `/me steam connected HACKERMANS`
 	  );
 	  steamClient.setPersona(SteamUser.EPersonaState.Busy);
-          dotaLaunchedByBot = false;
 	});
 	
 	steamClient.on("friendMessage", function (steamId, message) {

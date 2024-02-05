@@ -199,24 +199,18 @@
 steamClientMain.on('playingState', async function (blocked, playingApp) {
     if (playingApp === 0) {
         console.log('No game is currently being played.');
-        if (isBotRunning) {
-            console.log('Stopping bot because no game is being played.');
-            stopBot();
-        }
-        // Always attempt to launch Dota 2 if it wasn't launched by the bot previously
-        // This ensures Dota 2 goes online automatically when you're not playing any other game
-        if (!dotaLaunchedByBot) {
+        // Automatically launch Dota 2 if it was not already launched by the bot
+        if (!dotaLaunchedByBot && !isBotRunning) {
             launchDota2ByBot();
         }
     } else if (playingApp === 570) {
         console.log('Dota 2 is now active.');
-        // Here, we avoid checking dotaLaunchedByBot to ensure Dota 2 stays online
-        // But we do check it alongside isBotRunning before starting bot functionalities
+        // Start bot functionalities only if Dota 2 was opened manually
         if (!dotaLaunchedByBot && !isBotRunning) {
-            console.log('Dota 2 opened manually, starting bot functionalities...');
+            console.log('Starting bot functionalities due to manual Dota 2 launch...');
             startBot();
         } else {
-            console.log('Dota 2 is running.');
+            console.log('Dota 2 is running, but no action is taken since it was launched by the bot.');
         }
     } else {
         console.log(`A different game (appId=${playingApp}) is now active.`);
@@ -224,8 +218,7 @@ steamClientMain.on('playingState', async function (blocked, playingApp) {
             console.log('Stopping bot functionalities because a non-Dota 2 game is being played.');
             stopBot();
         }
-        // Reset dotaLaunchedByBot when a different game starts
-        dotaLaunchedByBot = false;
+        dotaLaunchedByBot = false; // Reset this flag whenever a new game is launched
     }
 });
 
@@ -252,8 +245,10 @@ function stopBot() {
     if (isBotRunning) {
         isBotRunning = false;
         console.log("Bot stopped.");
+	dotaLaunchedByBot = false;
         clearInterval(intervalBot); // Clear any ongoing intervals or bot activities
         // Do not automatically relaunch Dota 2 here to avoid creating a loop
+	    
     }
 }
 

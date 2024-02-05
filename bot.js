@@ -197,9 +197,9 @@
 	let intervalBot;
 	
 steamClientMain.on('playingState', async function (blocked, playingApp) {
-    if (playingApp === 0) { // No game is currently being played
+    if (playingApp === 0 && !isBotRunning) { // No game is currently being played
         console.log('No game is currently being played.');
-        if (!dotaLaunchedByBot && !isBotRunning) {
+        if (!dotaLaunchedByBot ) {
             // Automatically launch Dota 2 if it wasn't already launched by the bot and the bot is not running
             launchDota2ByBot();
         }
@@ -221,6 +221,7 @@ steamClientMain.on('playingState', async function (blocked, playingApp) {
         if (isBotRunning) {
             console.log('Stopping bot functionalities because a non-Dota 2 game is being played.');
             stopBot();
+	    launchDota2ByBot();
         }
     }
 });

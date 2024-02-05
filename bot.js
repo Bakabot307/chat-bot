@@ -232,19 +232,19 @@ steamClientMain.on('playingState', async function (blocked, playingApp) {
 
 function launchDota2ByBot() {
     dotaLaunchedByBot = true; // Indicate the bot is launching Dota 2
-    steamClientMain.gamesPlayed([570]); // Launch Dota 2
     console.log("Dota 2 launched by the bot.");
-    if (!isBotRunning) {
-        startBot(); // Start the bot if it wasn't running
-    }
+    steamClientMain.gamesPlayed([570]); // Launch Dota 2
 }
 
 function startBot() {
-    if (!isBotRunning) {
+    // Add a check to ensure bot functionalities only start if Dota 2 wasn't launched by the bot
+    if (!isBotRunning && !dotaLaunchedByBot) {
         isBotRunning = true;
         console.log("Bot started.");
         // Initialize bot's activities, e.g., set intervals for tasks
         intervalBot = setInterval(updateChannelTitle, 300000); // Example task
+    } else {
+        console.log("Avoiding starting bot functionalities since Dota 2 was launched by the bot.");
     }
 }
 

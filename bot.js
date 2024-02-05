@@ -252,15 +252,21 @@
 	}
 	
 	function startBot() {
-	  if (!isBotRunning) {
-	    isBotRunning = true;
-	    console.log("Bot started.");
-	    // Send a message to Twitch chat to notify that the bot has started
-	    twitchClient.say("bakabot1235", "/me Bot online Evilge");
-	    // Add your code to start the bot's activities, such as intervals or event listeners
-	    intervalBot = setInterval(updateChannelTitle, 300000); // Example: Update channel title every 5 minutes
-	  }
-	}
+  if (!isBotRunning) {
+    isBotRunning = true;
+    console.log("Bot started.");
+    // Send a message to Twitch chat to notify that the bot has started
+    console.log("Sending message to Twitch...");
+    twitchClient.say("bakabot1235", "/me Bot online Evilge");
+    console.log("Message sent to Twitch.");
+
+    // Add your code to start the bot's activities, such as intervals or event listeners
+    intervalBot = setInterval(updateChannelTitle, 300000); // Example: Update channel title every 5 minutes
+  } else {
+    console.log("Bot is already running.");
+  }
+}
+
 	
 	function stopBot() {
 	  if (isBotRunning) {

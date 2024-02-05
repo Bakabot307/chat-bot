@@ -232,7 +232,8 @@ if (!dotaLaunchedByBot) {  // Check if the game was not launched by the bot
         dotaLaunchedByBot = false; // Reset this flag whenever a new game is launched
         if (isBotRunning) {
             console.log('Stopping bot functionalities because a non-Dota 2 game is being played.');
-            stopBot();	   
+            stopBot();	
+	    launchDota2ByBot();   
         }
     }
 });

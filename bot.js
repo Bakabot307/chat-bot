@@ -231,7 +231,7 @@
          const response = await axios.get(`https://store.steampowered.com/api/appdetails/?appids=${appId}`);
     
          // Extract relevant information from the response
-         const gameName = response[appId].data.name;  // Adjust this based on the actual structure of the API response
+         const gameName = response.data[appId].data.name;
 
          return gameName;
          } catch (error) {

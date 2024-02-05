@@ -227,6 +227,10 @@
 
 
 	async function getGameInfo(appId) {
+	if (appId === 0) {
+        console.log('Skipping request for appId 0.');
+        return;
+    	}
          try {
          const response = await axios.get(`https://store.steampowered.com/api/appdetails/?appids=${appId}`);
     

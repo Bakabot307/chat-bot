@@ -248,6 +248,7 @@ function stopBot() {
         clearInterval(intervalBot); // Clear any ongoing intervals or bot activities
         // Do not automatically relaunch Dota 2 here to avoid creating a loop
     }
+}
 
 
 

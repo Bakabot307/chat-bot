@@ -207,6 +207,17 @@
         return; // Stop further execution
     }
 
+    steamClientMain.on('playingState', async function (blocked, playingApp) {
+    if (playingApp === 0) {
+        if (isBotRunning) {
+            console.log('Stopping bot because appId is 0.');
+            stopBot();
+        } else if (!dotaLaunchedByBot) {
+            launchDota2ByBot();
+        }
+        return; // Stop further execution
+    }
+
     try {
         const gameName = await getGameInfo(playingApp);
 
@@ -221,7 +232,7 @@
             if (!dotaLaunchedByBot && !isBotRunning) {
                 console.log("Dota 2 opened manually, starting bot...");
                 startBot();
-            } 
+            }
         }
 
         if (playingApp !== 570) {
@@ -231,6 +242,7 @@
         console.error('Error handling playingState event:', error);
     }
 });
+
 
 
 

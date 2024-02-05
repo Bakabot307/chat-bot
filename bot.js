@@ -196,42 +196,61 @@
 	let isBotRunning = false; // Flag to track the bot's operational state
 	let intervalBot;
 	
-	steamClientMain.on('playingState', async function (blocked, playingApp) {
+steamClientMain.on('playingState', async function (blocked, playingApp) {
     if (playingApp === 0) {
+        console.log('No game is currently being played.');
         if (isBotRunning) {
-            console.log('Stopping bot because appId is 0.');
+            console.log('Stopping bot because no game is being played.');
             stopBot();
-        } else if (!dotaLaunchedByBot) {
+        }
+        // Only attempt to launch Dota 2 if it wasn't launched by the bot previously
+        if (!dotaLaunchedByBot) {
             launchDota2ByBot();
         }
-        return; // Stop further execution
-    }
-
-    try {
-        const gameName = await getGameInfo(playingApp);
-
-        if (gameName) {
-            twitchClient.say("bakabot1235", `/me playing: ${gameName}`);
-        } else {
-            console.log("Game information not available.");
+    } else if (playingApp === 570) {
+        console.log('Dota 2 is now active.');
+        dotaLaunchedByBot = true; // Mark as launched by bot if automatically launched or recognize it's being played
+        if (!isBotRunning) {
+            console.log('Starting bot due to Dota 2 activity...');
+            startBot();
         }
-
-        if (blocked && playingApp === 570) {
-            console.log("Started playing Dota 2.");
-            if (!dotaLaunchedByBot && !isBotRunning) {
-                console.log("Dota 2 opened manually, starting bot...");
-                startBot();
-            }
+    } else {
+        console.log(`A different game (appId=${playingApp}) is now active.`);
+        dotaLaunchedByBot = false; // Reset this since Dota 2 is not the active game
+        // Consider stopping the bot if you want it to only run with Dota 2
+        if (isBotRunning) {
+            console.log('Stopping bot because a non-Dota 2 game is being played.');
+            stopBot();
         }
-
-        if (playingApp !== 570) {
-            dotaLaunchedByBot = false;
-        }
-    } catch (error) {
-        console.error('Error handling playingState event:', error);
     }
 });
 
+function launchDota2ByBot() {
+    dotaLaunchedByBot = true; // Indicate the bot is launching Dota 2
+    steamClientMain.gamesPlayed([570]); // Launch Dota 2
+    console.log("Dota 2 launched by the bot.");
+    if (!isBotRunning) {
+        startBot(); // Start the bot if it wasn't running
+    }
+}
+
+function startBot() {
+    if (!isBotRunning) {
+        isBotRunning = true;
+        console.log("Bot started.");
+        // Initialize bot's activities, e.g., set intervals for tasks
+        intervalBot = setInterval(updateChannelTitle, 300000); // Example task
+    }
+}
+
+function stopBot() {
+    if (isBotRunning) {
+        isBotRunning = false;
+        console.log("Bot stopped.");
+        clearInterval(intervalBot); // Clear any ongoing intervals or bot activities
+        // Do not automatically relaunch Dota 2 here to avoid creating a loop
+    }
+}
 
 
 
@@ -252,36 +271,6 @@
          return null;
          }
          }
-	
-	function launchDota2ByBot() {
-	  dotaLaunchedByBot = true; // Indicate the bot is launching Dota 2
-	  steamClientMain.gamesPlayed([570]); // Launch Dota 2
-	  steamClientMain.setPersona(SteamUser.EPersonaState.Busy);
-	  console.log("Dota 2 launched by the bot");
-	}
-	
-	function startBot() {
-  if (!isBotRunning) {
-    isBotRunning = true;
-    console.log("Bot started.");
-    // Add your code to start the bot's activities, such as intervals or event listeners
-    intervalBot = setInterval(updateChannelTitle, 300000); // Example: Update channel title every 5 minutes
-  } else {
-    console.log("Bot is already running.");
-  }
-}
-
-	
-	function stopBot() {
-	  if (isBotRunning) {
-	    isBotRunning = false;
-	    console.log("Bot stopped.");   
-	    launchDota2ByBot();
-	    // Add your code to stop the bot's activities, such as clearing intervals
-	    clearInterval(intervalBot); // Example: Stop the title update interval
-	  }
-	}
-	
 	steamClientMain.on("error", function (e) {
 	  if (e.eresult === SteamUser.EResult.LoggedInElsewhere) {
 	    console.log("logged somewhere else");

@@ -197,42 +197,39 @@
 	let intervalBot;
 	
 	steamClientMain.on('playingState', async function(blocked, playingApp) {
-	
-	if (playingApp === 0 && isBotRunning) {
-            console.log('Skipping request for appId 0.');
-            return; // Skip only the appId === 0 condition
-        } else if (playingApp === 0) {
-       	    console.log('Skipping request for appId 0.');
-            launchDota2ByBot(); // Open Dota 2 by bot
-            return;
-    }
-  try {
-    const gameName = await getGameInfo(playingApp);
-
-    if (gameName) {
-      twitchClient.say("bakabot1235", `/me playing: ${gameName}`);
-    } else {
-      console.log("Game information not available.");
+    if (playingApp === 0) {
+        if (isBotRunning) {
+            console.log('Stopping bot because appId is 0.');
+            stopBot();     
+        }
+        return; // Stop further execution
     }
 
-    if (blocked && playingApp === 570) {
-      console.log("Started playing Dota 2.");
-      if (!dotaLaunchedByBot && !isBotRunning) {
-        console.log("Dota 2 opened manually, starting bot...");
-        startBot();
-      }
-    } else if (!blocked && !dotaLaunchedByBot && isBotRunning) {
-      console.log("Stopped playing Dota 2, stopping bot...");
-      stopBot();
-    }
+    try {
+        const gameName = await getGameInfo(playingApp);
 
-    if (playingApp !== 570) {
-      dotaLaunchedByBot = false;
+        if (gameName) {
+            twitchClient.say("bakabot1235", `/me playing: ${gameName}`);
+        } else {
+            console.log("Game information not available.");
+        }
+
+        if (blocked && playingApp === 570) {
+            console.log("Started playing Dota 2.");
+            if (!dotaLaunchedByBot && !isBotRunning) {
+                console.log("Dota 2 opened manually, starting bot...");
+                startBot();
+            }
+        }
+
+        if (playingApp !== 570) {
+            dotaLaunchedByBot = false;
+        }
+    } catch (error) {
+        console.error('Error handling playingState event:', error);
     }
-  } catch (error) {
-    console.error('Error handling playingState event:', error);
-  }
 });
+
 
 
 	async function getGameInfo(appId) {
@@ -275,7 +272,8 @@
 	function stopBot() {
 	  if (isBotRunning) {
 	    isBotRunning = false;
-	    console.log("Bot stopped.");     
+	    console.log("Bot stopped.");   
+	    launchDota2ByBot();
 	    // Add your code to stop the bot's activities, such as clearing intervals
 	    clearInterval(intervalBot); // Example: Stop the title update interval
 	  }

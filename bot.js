@@ -197,6 +197,7 @@
 	let intervalBot;
 	
 steamClientMain.on('playingState', async function (blocked, playingApp) {
+	console.log(playingApp)
 if (!dotaLaunchedByBot) {  // Check if the game was not launched by the bot
         try {
             const gameName = await getGameInfo(playingApp); // Ensure getGameInfo function is defined and works correctly

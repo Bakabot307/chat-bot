@@ -441,26 +441,41 @@ function stopBot() {
 	    }
 	}
 	
-	twitchClientMain.on("message", (channel, userstate, message, self) => {
-	  const command = message.trim().split(" ")[0];
-	  if(command==='[nowamod' && userstate["username"] === 'bakabot1135'){
-		  addModerator(message.trim().split(" ")[1]);
-		  removeModerator(message.trim().split(" ")[2].slice(0, -1))
-	  }
-	  if(command==='checktoken' && userstate["username"] === 'bakabot1135'){
-		  verifyTokenScopes()
-	  } 
-	 
-	  if (userstate["username"] === channel.slice(1)) {
-	    return;
-	  }
-	  if(isBotRunning==true){
-	        steamClient.chatMessage(
-	            "76561198392179703",
-	            `${userstate["username"]}: ${message}`
-	        );
-	  }
-	})     
+	twitchClientMain.on("message", async (channel, userstate, message, self) => {
+    const command = message.trim().split(" ")[0];
+    
+    if(command === "[nowamod" && userstate["username"] === "bakabot1135") {
+        // Your existing logic for adding and removing moderators
+        addModerator(message.trim().split(" ")[1]);
+        removeModerator(message.trim().split(" ")[2].slice(0, -1));
+    }
+    
+    if (command === "!vRank") {
+        try {
+            // Make the API request to fetch Valorant data
+            const response = await axios.get('https://api.kyroskoh.xyz/valorant/v1/mmr/ap/bakabot/7117?show=combo&display=0');
+            
+            // Send the API response directly to Twitch chat
+            twitchClientMain.say(channel, response.data);
+        } catch (error) {
+            console.error('Error fetching Valorant data:', error.message);
+            // Handle errors appropriately, such as informing the user or logging the error
+        }
+    }
+    
+    // Additional logic for handling other commands or messages
+    if (userstate["username"] === channel.slice(1)) {
+        return;
+    }
+    
+    if (isBotRunning === true) {
+        steamClient.chatMessage(
+            "76561198392179703",
+            `${userstate["username"]}: ${message}`
+        );
+    }
+});
+    
 	
 	
 	

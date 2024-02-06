@@ -456,7 +456,7 @@ function stopBot() {
             const response = await axios.get('https://api.kyroskoh.xyz/valorant/v1/mmr/ap/bakabot/7117?show=combo&display=0');
             
             // Send the API response directly to Twitch chat
-            twitchClientMain.say(channel, response.data);
+            twitchClient.say(channel, `${response.data} :33`);
         } catch (error) {
             console.error('Error fetching Valorant data:', error.message);
             // Handle errors appropriately, such as informing the user or logging the error

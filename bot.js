@@ -255,10 +255,10 @@ function launchDota2ByBot() {
     // Delay the execution of the code inside setTimeout by 5000 milliseconds (5 seconds)
     setTimeout(() => {
         dotaLaunchedByBot = true; // Indicate the bot is launching Dota 2
-        console.log("Dota 2 is being launched by the bot after a 70-second delay.");
-        steamClientMain.setPersona(SteamUser.EPersonaState.Busy);
+        console.log("Dota 2 is being launched by the bot after a 70-second delay.");     
         console.log("Steam status set to Busy.");
         steamClientMain.gamesPlayed([570]); // Launch Dota 2
+        steamClientMain.setPersona(SteamUser.EPersonaState.Busy);
     }, 70000); // 70000 milliseconds delay
 }
 

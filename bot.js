@@ -302,7 +302,6 @@ function stopBot() {
 	steamClientMain.on("error", function (e) {
 	  if (e.eresult === SteamUser.EResult.LoggedInElsewhere) {
 	    console.log("logged somewhere else");
-	    steamClient.setPersona(SteamUser.EPersonaState.Busy);
 	    relogAfterDelay();
 	  }
 	});
@@ -339,8 +338,7 @@ function stopBot() {
 	  twitchClient.say(
 	      "bakabot1235",
 	      `/me steam connected HACKERMANS`
-	  );
-	  steamClient.setPersona(SteamUser.EPersonaState.Busy);
+	  );	 
 	});
 	
 	steamClient.on("friendMessage", function (steamId, message) {

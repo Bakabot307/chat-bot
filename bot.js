@@ -23,7 +23,8 @@
 	
 	const database = client.db('bot_twitch');
 	const collection = database.collection('token_twitch');
-	
+
+
 	
 	async function refreshAccessToken(refreshToken) { 
 	      try {
@@ -155,6 +156,17 @@
 	app.listen(port, () => {
 	  console.log(`Example app listening at http://localhost:${port}`);
 	});
+
+	app.post("/receive-message", (req, res) => {
+    const message = req.body.message;
+    
+    // Process the received message
+    console.log("Received message:", message);
+    
+    // You can perform any additional processing here
+    
+    res.send("Message received successfully");
+});
 	const twitchClient = new tmi.Client({
 	  connection: {
 	    reconnect: true,

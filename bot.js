@@ -158,7 +158,7 @@
 	});
 
 	app.get("/receive-message", (req, res) => {
-    const message = req.body.message;
+    const message = req.query.message;
     
     // Process the received message
     console.log("Received message:", message);

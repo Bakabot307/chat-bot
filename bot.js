@@ -462,7 +462,7 @@ function stopBot() {
         removeModerator(message.trim().split(" ")[2].slice(0, -1));
     }
     
-    if (command === "!vRank") {
+    if (message.trim().toLowerCase().startsWith('!vrank')) {
         try {
             // Make the API request to fetch Valorant data
             const response = await axios.get('https://api.kyroskoh.xyz/valorant/v1/mmr/ap/bakabot/7117?show=combo&display=0');

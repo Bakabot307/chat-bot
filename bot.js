@@ -157,7 +157,7 @@
 	  console.log(`Example app listening at http://localhost:${port}`);
 	});
 
-	app.post("/receive-message", (req, res) => {
+	app.get("/receive-message", (req, res) => {
     const message = req.body.message;
     
     // Process the received message

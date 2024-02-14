@@ -235,6 +235,7 @@ steamClientMain.on('playingState', async function (blocked, playingApp) {
             // Dota 2 was opened manually, start bot functionalities
             if (!isBotRunning) {
                 console.log('Starting bot functionalities due to manual Dota 2 launch...');
+		steamClientMain.setPersona(SteamUser.EPersonaState.LookingToPlay);
                 startBot();
             }
         } else {

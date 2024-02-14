@@ -258,7 +258,9 @@ function launchDota2ByBot() {
         console.log("Dota 2 is being launched by the bot after a 70-second delay.");     
         console.log("Steam status set to Busy.");
         steamClientMain.gamesPlayed([570]); // Launch Dota 2
-        steamClientMain.setPersona(SteamUser.EPersonaState.Busy);
+        steamClientMain.setPersona(
+  SteamUser.EPersonaState["Busy"]
+);
     }, 70000); // 70000 milliseconds delay
 }
 

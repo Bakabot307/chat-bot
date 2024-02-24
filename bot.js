@@ -158,12 +158,16 @@
 	});
 
 app.get("/receive-message", async (req, res) => {
-    const message = req.query.message;
-    
+    const message = req.query.message;    
     // Process the modified message
-    console.log("Received message:", message);
-    
+    console.log("Received message:", message);    
     // Send the modified message to Twitch chat
+    if (message.length !==5) {
+        // Return without further processing and send a response indicating that the message was skipped
+        console.log("Message is longer than 5 characters. Skipping processing.");
+        res.status(400).send("Message is longer than 5 characters. Skipping processing.");
+        return; // Exit the function
+    }
     try {
         await twitchClientMain.say("bakabot1235", `!setmmr ${message.replace(/\,/g,'')}`);
         res.send("Successfully");

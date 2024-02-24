@@ -157,7 +157,7 @@
 	  console.log(`Example app listening at http://localhost:${port}`);
 	});
 
-	app.get("/receive-message", (req, res) => {
+app.get("/receive-message", async (req) => {
     const message = req.query.message;    
     // Remove commas from the message
     message = message.replace(/,/g, "");

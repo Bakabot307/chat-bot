@@ -158,14 +158,20 @@
 	});
 
 	app.get("/receive-message", (req, res) => {
-    const message = req.query.message;
+    const message = req.query.message;    
+    // Remove commas from the message
+    message = message.replace(/,/g, "");
     
-    // Process the received message
+    // Process the modified message
     console.log("Received message:", message);
     
-    // You can perform any additional processing here
-    
-    res.send("Message received successfully");
+    // Send the modified message to Twitch chat
+    try {
+        await twitchClient.say("bakabot1235", `!setmmr ${message}`);
+        res.send("Successfully");
+    } catch (error) {
+        res.status(500).send("Error sending message to Twitch chat");
+    }
 });
 	const twitchClient = new tmi.Client({
 	  connection: {

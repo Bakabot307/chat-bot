@@ -165,7 +165,7 @@ app.get("/receive-message", async (req, res) => {
     
     // Send the modified message to Twitch chat
     try {
-        await twitchClient.say("bakabot1235", `!setmmr ${message}`);
+        await twitchClientMain.say("bakabot1235", `!setmmr ${message.replace(/\,/g,'')}`);
         res.send("Successfully");
     } catch (error) {
         console.error("Error sending message to Twitch chat:", error);

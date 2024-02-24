@@ -160,21 +160,12 @@
 app.get("/receive-message", async (req, res) => {
     const message = req.query.message;
     
-    // Check if the message contains any number followed by a comma
-    if (/^\d{1,3},\d{3}$/.test(message)) {
-        return; // Exit the function
-    }
-    
-    // Remove commas from the message
-    const modifiedMessage = message.replace(/,/g, "");
-    
     // Process the modified message
     console.log("Received message:", message);
-    console.log("Modified message:", modifiedMessage);
     
     // Send the modified message to Twitch chat
     try {
-        await twitchClient.say("bakabot1235", `!setmmr ${modifiedMessage}`);
+        await twitchClient.say("bakabot1235", `!setmmr ${message}`);
         res.send("Successfully");
     } catch (error) {
         console.error("Error sending message to Twitch chat:", error);

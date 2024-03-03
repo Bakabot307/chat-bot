@@ -498,7 +498,9 @@ function stopBot() {
     }
 });
     
-	
+	twitchClientMain.on("subscription", (channel, username, method, message, userstate) => {
+     twitchClient.say(channel, `${username} Thank you for your support thankyou`);
+});
 	
 	
 	

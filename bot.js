@@ -215,6 +215,15 @@ app.get("/receive-message", async (req, res) => {
 	
 	steamClientMain.logOn(loginDetails);
 	
+	steamClientMain.on("steamGuard", function(domain, callback, lastCodeWrong) {
+	if(lastCodeWrong) {
+		console.log("Last code wrong, try again!");
+		setTimeout(function() {
+		    callback(SteamTotp.getAuthCode("YOURCODE"));
+		}, 30000);
+	}	
+});
+	
 	let dotaLaunchedByBot = false; // Flag to indicate if Dota 2 was launched by the bot
 	let isBotRunning = false; // Flag to track the bot's operational state
 	let intervalBot;

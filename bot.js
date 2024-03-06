@@ -219,7 +219,7 @@ app.get("/receive-message", async (req, res) => {
 	if(lastCodeWrong) {
 		console.log("Last code wrong, try again!");
 		setTimeout(function() {
-		    callback(SteamTotp.getAuthCode("YOURCODE"));
+		    callback(SteamTotp.getAuthCode(process.env.STEAM_SHARED_SECRET));
 		}, 30000);
 	}	
 });

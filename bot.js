@@ -229,7 +229,8 @@ app.get("/receive-message", async (req, res) => {
 	let intervalBot;
 	
 steamClientMain.on('playingState', async function (blocked, playingApp) {
-	console.log(playingApp)	
+  console.log(playingApp)	
+  steamClientMain.setPersona(SteamUser.EPersonaState.Snooze);
   if (!dotaLaunchedByBot) {  // Check if the game was not launched by the bot
         try {
             const gameName = await getGameInfo(playingApp); // Ensure getGameInfo function is defined and works correctly

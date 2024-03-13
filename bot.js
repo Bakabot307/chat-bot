@@ -229,8 +229,7 @@ app.get("/receive-message", async (req, res) => {
 	let intervalBot;
 	
 steamClientMain.on('playingState', async function (blocked, playingApp) {
-	console.log(playingApp)
-	steamClientMain.setPersona(SteamUser.EPersonaState.Snooze);
+	console.log(playingApp)	
   if (!dotaLaunchedByBot) {  // Check if the game was not launched by the bot
         try {
             const gameName = await getGameInfo(playingApp); // Ensure getGameInfo function is defined and works correctly
@@ -255,7 +254,6 @@ steamClientMain.on('playingState', async function (blocked, playingApp) {
             // Dota 2 was opened manually, start bot functionalities
             if (!isBotRunning) {
                 console.log('Starting bot functionalities due to manual Dota 2 launch...');
-		steamClientMain.setPersona(SteamUser.EPersonaState.LookingToPlay);
                 startBot();
             }
         } else {
@@ -266,8 +264,8 @@ steamClientMain.on('playingState', async function (blocked, playingApp) {
         console.log(`A different game (appId=${playingApp}) is now active.`);
         dotaLaunchedByBot = false; // Reset this flag whenever a new game is launched
         if (isBotRunning) {
-            console.log('Stopping bot functionalities because a non-Dota 2 game is being played.');
             stopBot();	
+            console.log('Stopping bot functionalities because a non-Dota 2 game is being played.');          
 	    launchDota2ByBot();   
         }
     }
@@ -278,8 +276,8 @@ function launchDota2ByBot() {
     setTimeout(() => {
         dotaLaunchedByBot = true; // Indicate the bot is launching Dota 2
         console.log("Dota 2 is being launched by the bot after a 70-second delay.");             
-        steamClientMain.gamesPlayed([570]); // Launch Dota 2     
-     
+        steamClientMain.gamesPlayed([570]); // Launch Dota 2   
+	steamClientMain.setPersona(SteamUser.EPersonaState.Snooze);     
     }, 70000); // 70000 milliseconds delay
 }
 

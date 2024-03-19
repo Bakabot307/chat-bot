@@ -179,8 +179,7 @@ app.get("/receive-message", async (req, res) => {
 
 app.get("/receive-gameName", async (req, res) => {
     const message = req.query.message;    
-    // Process the modified message
-    console.log("Received message:", message);        
+    await twitchClient.say("bakabot1235", `/me playing ${message}`); 
 });
 
 

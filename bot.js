@@ -342,7 +342,7 @@ function stopBot() {
     }
   }, delay);
 }
-function relogSteam()(){
+function relogSteam(){
 	 const loginDetails = {
         accountName: process.env.STEAM_USER_NAME,
         password: process.env.STEAM_PASSWORD,

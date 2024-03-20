@@ -496,7 +496,7 @@ function relogSteam(){
             // Handle errors appropriately, such as informing the user or logging the error
         }
     }
-		if (command === "[restartBot" && userstate['user-type'] === 'mod') {
+		if (command === "[!restartBot" && userstate.mod {
 			console.log('relogging steam with twitch')
     relogSteam();
 		}

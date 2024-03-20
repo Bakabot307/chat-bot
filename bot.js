@@ -329,27 +329,27 @@ function stopBot() {
 	
 	function relogAfterDelay() {
   const delay = 60000; // Delay before attempting to relog, in milliseconds
-  console.log(`Will attempt to relog after ${delay / 1000} seconds.`);
+  console.log(`Will attempt to relog after ${delay / 60000} seconds.`);
 
   setTimeout(() => {
-    // Check if the client is already logged in and Dota 2 was not launched manually before attempting to relog
-    if (!steamClientMain.loggedOn) {
-      console.log("Relogging into Steam...");
-      dotaLaunchedByBot = false;
-      relogSteam()
-    } else {
-      console.log("Already logged into Steam or Dota 2 launched manually, no need to relog.");
-    }
+    relogSteam();
   }, delay);
 }
 function relogSteam(){
-	 const loginDetails = {
+	// Check if the client is already logged in and Dota 2 was not launched manually before attempting to relog
+    if (!steamClientMain.loggedOn) {
+      console.log("Relogging into Steam...");
+      dotaLaunchedByBot = false;
+	    const loginDetails = {
         accountName: process.env.STEAM_USER_NAME,
         password: process.env.STEAM_PASSWORD,
         twoFactorCode: steamTotp.generateAuthCode(process.env.STEAM_SHARED_SECRET),
         rememberPassword: true,
       };
       steamClientMain.logOn(loginDetails);
+    } else {
+      console.log("Already logged into Steam or Dota 2 launched manually, no need to relog.");
+    } 
 }
 	
 	steamClient.logOn({
@@ -496,7 +496,7 @@ function relogSteam(){
             // Handle errors appropriately, such as informing the user or logging the error
         }
     }
-		if (command === "!restartBot" && (userstate.mod || userstate.username === channel.slice(1))) {
+		if (command === "!restartBot" && (userstate.mod || userstate["username"] === channel.slice(1))) {
     console.log('relogging steam with twitch');
     relogSteam();
 }

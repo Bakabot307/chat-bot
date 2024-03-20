@@ -496,10 +496,10 @@ function relogSteam(){
             // Handle errors appropriately, such as informing the user or logging the error
         }
     }
-		if (command === "!restartBot" && userstate.mod) {
-			console.log('relogging steam with twitch')
+		if (command === "!restartBot" && (userstate.mod || userstate.username === channel.slice(1))) {
+    console.log('relogging steam with twitch');
     relogSteam();
-		}
+}
     
     
     // Additional logic for handling other commands or messages

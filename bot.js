@@ -303,10 +303,6 @@ function stopBot() {
         clearInterval(intervalBot); // Clear any ongoing intervals or bot activities
     }
 }
-
-
-
-
 	async function getGameInfo(appId) {
 	if (appId === 0) {
         console.log('Skipping request for appId 0.');
@@ -340,17 +336,20 @@ function stopBot() {
     if (!steamClientMain.loggedOn) {
       console.log("Relogging into Steam...");
       dotaLaunchedByBot = false;
-      const loginDetails = {
+      relogSteam()
+    } else {
+      console.log("Already logged into Steam or Dota 2 launched manually, no need to relog.");
+    }
+  }, delay);
+}
+function relogSteam()(){
+	 const loginDetails = {
         accountName: process.env.STEAM_USER_NAME,
         password: process.env.STEAM_PASSWORD,
         twoFactorCode: steamTotp.generateAuthCode(process.env.STEAM_SHARED_SECRET),
         rememberPassword: true,
       };
       steamClientMain.logOn(loginDetails);
-    } else {
-      console.log("Already logged into Steam or Dota 2 launched manually, no need to relog.");
-    }
-  }, delay);
 }
 	
 	steamClient.logOn({
@@ -485,7 +484,7 @@ function stopBot() {
         removeModerator(message.trim().split(" ")[2].slice(0, -1));
     }
     
-    if (message.trim().toLowerCase().startsWith('!vrank')) {
+    if (command.trim().toLowerCase().startsWith('!vrank')) {
         try {
             // Make the API request to fetch Valorant data
             const response = await axios.get('https://api.kyroskoh.xyz/valorant/v1/mmr/ap/bakabot/7117?show=combo&display=0');
@@ -497,6 +496,10 @@ function stopBot() {
             // Handle errors appropriately, such as informing the user or logging the error
         }
     }
+      if(command === "[restartBot" && user['user-type'] === 'mod') {
+        relogSteam();
+    }
+    
     
     // Additional logic for handling other commands or messages
     if (userstate["username"] === channel.slice(1)) {
@@ -511,11 +514,10 @@ function stopBot() {
     }
 });
     
-	twitchClientMain.on("subscription", (channel, username, method, message, userstate) => {
+     twitchClientMain.on("subscription", (channel, username, method, message, userstate) => {
      twitchClient.say(channel, `${username} thankyou`);
 });
-twitchClientMain.on("resub", (channel, username, months, message, userstate, methods) => {
-    // Do your stuff.
+     twitchClientMain.on("resub", (channel, username, months, message, userstate, methods) => {
      twitchClient.say(channel, `${username} thankyou`);
 });
 	

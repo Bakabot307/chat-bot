@@ -335,6 +335,10 @@ function stopBot() {
     relogSteam();
   }, delay);
 }
+
+function  resetGame(){
+	steamClientMain.gamesPlayed([570]); // Launch Dota 2   
+	steamClientMain.setPersona(SteamUser.EPersonaState.Snooze);}
 function relogSteam(){
 	// Check if the client is already logged in and Dota 2 was not launched manually before attempting to relog
     if (!steamClientMain.loggedOn) {
@@ -498,7 +502,7 @@ function relogSteam(){
     }
 		if (command === "!restartBot" && (userstate.mod || userstate["username"] === channel.slice(1))) {
     console.log('relogging steam with twitch');
-    relogSteam();
+    resetGame();
 }
     
     

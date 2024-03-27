@@ -235,13 +235,19 @@ app.get("/receive-gameName", async (req, res) => {
 	let announced = false;
 	let gameId = 0;
 steamClientMain.on('playingState', async function (blocked, playingApp) {
-  if(gameId===playingApp && announced){
-	  return;
-  } else if (playingApp===0 && gameId!==0){
-	  announced=false;
-  } else if (playingApp!==0 && gameId===0){
-	  announced=true;
-	  gameId=playingApp
+    if (gameId === playingApp && !announced) {
+    return; 
+  } else if (playingApp === 0 && gameId !== 0) {
+    announced = false; 
+  } else if (playingApp !== 0 && gameId === 0) {
+    announced = true; 
+    gameId = playingApp; 
+  } else if (playingApp !== 0 && gameId !== playingApp) {
+    announced = false; 
+    gameId = playingApp; 
+  } else if (gameId === playingApp && announced) {
+    announced = false; 
+    return; 
   }
   steamClientMain.setPersona(SteamUser.EPersonaState.Snooze);
   if (!dotaLaunchedByBot) {  // Check if the game was not launched by the bot

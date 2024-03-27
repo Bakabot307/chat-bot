@@ -23,8 +23,6 @@
 	
 	const database = client.db('bot_twitch');
 	const collection = database.collection('token_twitch');
-
-
 	
 	async function refreshAccessToken(refreshToken) { 
 	      try {
@@ -156,7 +154,6 @@
 	app.listen(port, () => {
 	  console.log(`Example app listening at http://localhost:${port}`);
 	});
-
 app.get("/receive-message", async (req, res) => {
     const message = req.query.message;    
     // Process the modified message
@@ -176,13 +173,10 @@ app.get("/receive-message", async (req, res) => {
         res.status(500).send("Error sending message to Twitch chat");
     }
 });
-
 app.get("/receive-gameName", async (req, res) => {
     const message = req.query.message;    
     await twitchClient.say("bakabot1235", `/me playing ${message}`); 
 });
-
-
 	const twitchClient = new tmi.Client({
 	  connection: {
 	    reconnect: true,
@@ -232,8 +226,9 @@ app.get("/receive-gameName", async (req, res) => {
 	let dotaLaunchedByBot = false; // Flag to indicate if Dota 2 was launched by the bot
 	let isBotRunning = false; // Flag to track the bot's operational state
 	let intervalBot;
-	let announced = false;
+	
 steamClientMain.on('playingState', async function (blocked, playingApp) {
+  console.log(playingApp)	
   steamClientMain.setPersona(SteamUser.EPersonaState.Snooze);
   if (!dotaLaunchedByBot) {  // Check if the game was not launched by the bot
         try {
@@ -275,7 +270,6 @@ steamClientMain.on('playingState', async function (blocked, playingApp) {
         }
     }
 });
-
 function launchDota2ByBot() {
     // Delay the execution of the code inside setTimeout by 5000 milliseconds (5 seconds)
     setTimeout(() => {
@@ -285,7 +279,6 @@ function launchDota2ByBot() {
 	steamClientMain.setPersona(SteamUser.EPersonaState.Snooze);     
     }, 70000); // 70000 milliseconds delay
 }
-
 function startBot() {
     if (!isBotRunning) {
         isBotRunning = true; // Indicate the bot functionalities are starting
@@ -294,7 +287,6 @@ function startBot() {
         intervalBot = setInterval(updateChannelTitle, 300000); // Example task
     }
 }
-
 function stopBot() {
     if (isBotRunning) {
         isBotRunning = false; // Indicate the bot functionalities are stopping
@@ -312,7 +304,6 @@ function stopBot() {
     
          // Extract relevant information from the response
          const gameName = response.data[appId].data.name;
-
          return gameName;
          } catch (error) {
          console.error('Error retrieving game information:', error.message);
@@ -329,7 +320,6 @@ function stopBot() {
 	function relogAfterDelay() {
   const delay = 60000; // Delay before attempting to relog, in milliseconds
   console.log(`Will attempt to relog after ${delay / 60000} seconds.`);
-
   setTimeout(() => {
     relogSteam();
   }, delay);
@@ -341,191 +331,9 @@ function  resetGame(){
 function relogSteam(){
 	// Check if the client is already logged in and Dota 2 was not launched manually before attempting to relog
     if (!steamClientMain.loggedOn) {
-      console.log("Relogging into Steam...");
-      dotaLaunchedByBot = false;
-	    const loginDetails = {
-        accountName: process.env.STEAM_USER_NAME,
-        password: process.env.STEAM_PASSWORD,
-        twoFactorCode: steamTotp.generateAuthCode(process.env.STEAM_SHARED_SECRET),
-        rememberPassword: true,
-      };
-      steamClientMain.logOn(loginDetails);
-    } else {
-      console.log("Already logged into Steam or Dota 2 launched manually, no need to relog.");
-    } 
-}
-	
-	steamClient.logOn({
-	  accountName: process.env.STEAM_USER_NAME_2,
-	  password: process.env.STEAM_PASSWORD_2,
-	});
-	
-
-	steamClient.on("loggedOn", () => {
-	  twitchClient.say(
-	      "bakabot1235",
-	      `/me steam connected HACKERMANS`
-	  );	 
-	});
-	
-	steamClient.on("friendMessage", function (steamId, message) {
-	  if(isBotRunning===true){
-	    twitchClientMain.say("bakabot1235", message);
-	  }
-	});
-	
-	async function addModerator(userId) {
-	    let refreshTOKEN;
-	    try {
-	        const tokens = await getTokens(); 
-	        const { accessToken, refreshToken } = tokens;    
-	        refreshTOKEN = refreshToken;
-	        const broadcasterId = await getBroadcasterId(accessToken);
-	        const url = 'https://api.twitch.tv/helix/moderation/moderators';
-	        const headers = {
-	            'Client-ID': clientId,
-	            'Authorization': `Bearer ${accessToken}`,
-	            'Content-Type': 'application/json'
-	        };
-	        const data = {
-	            broadcaster_id: broadcasterId,
-	            user_id: userId
-	        };
-	
-	        await axios.post(url, data, { headers });
-	    } catch (error) {
-	            if (error.response && error.response.status === 401) {
-	      try {
-	        await refreshAccessToken(refreshTOKEN); // Use refreshTOken here
-	        await addModerator(userId);
-	      } catch (refreshError) {
-	        console.error('Error updating channel title:', refreshError.message);
-	        // Handle the error appropriately or throw it if needed
-	        throw refreshError;
-	      }
-	    } else if (error.response && error.response.status === 422) {
-	            // Check the specific error message if possible to confirm the user is a VIP
-	            await removeVIP(userId);
-	            await addModerator(userId);
-	        } else {
-	            console.error('Error in addModerator:', error.message);
-	            throw error;
-	        }
-	  }
-	}
-	async function removeModerator(userId) {
-	    let refreshTOKEN;
-	    try {
-	        const tokens = await getTokens();
-	        const { accessToken, refreshToken } = tokens;
-	        refreshTOKEN = refreshToken;
-	        const broadcasterId = await getBroadcasterId(accessToken);
-	        const url = `https://api.twitch.tv/helix/moderation/moderators?broadcaster_id=${broadcasterId}&user_id=${userId}`;
-	        const headers = {
-	            'Client-ID': clientId,
-	            'Authorization': `Bearer ${accessToken}`,
-	            'Content-Type': 'application/json'
-	        };
-	
-	        await axios.delete(url, { headers });
-	    } catch (error) {
-	        if (error.response && error.response.status === 401) {
-	            try {
-	                await refreshAccessToken(refreshTOKEN);
-	                await removeModerator(userId);
-	            } catch (refreshError) {
-	                console.error('Error refreshing token:', refreshError.message);
-	                throw refreshError;
-	            }
-	        } else {
-	            console.error('Error in removeModerator:', error.message);
-	            throw error;
-	        }
-	    }
-	}
-	    
-	
-	
-	async function removeVIP(userId) {
-	    try {
-	        const { accessToken, refreshToken } = await getTokens(); 
-	        const broadcasterId = await getBroadcasterId(accessToken);
-	        const url = `https://api.twitch.tv/helix/channels/vips?broadcaster_id=${broadcasterId}&user_id=${userId}`;
-	        const headers = {
-	            'Client-ID': clientId,
-	            'Authorization': `Bearer ${accessToken}`,
-	            'Content-Type': 'application/json'
-	        };
-	        await axios.delete(url, { headers });
-	    } catch (error) {
-	        throw error;
-	    }
-	}
-	
-	async function verifyTokenScopes() {
-		const tokens = await getTokens(); 
-	        const { accessToken, refreshToken } = tokens;  
-	    try {
-	        const response = await axios.get('https://id.twitch.tv/oauth2/validate', {
-	            headers: {
-	                'Authorization': `OAuth ${accessToken}`
-	            }
-	        });
-	        console.log('Token details:', response.data);
-	        // Here, you can check if 'response.data.scopes' includes 'channel:manage:moderators'
-	    } catch (error) {
-	        console.error('Error verifying token:', error);
-	    }
-	}
-	
-	twitchClientMain.on("message", async (channel, userstate, message, self) => {
-    const command = message.trim().split(" ")[0];
-    
-    if(command === "[nowamod" && userstate["username"] === "bakabot1135") {
-        // Your existing logic for adding and removing moderators
-        addModerator(message.trim().split(" ")[1]);
-        removeModerator(message.trim().split(" ")[2].slice(0, -1));
-    }
-    
-    if (command.trim().toLowerCase().startsWith('!vrank')) {
-        try {
-            // Make the API request to fetch Valorant data
-            const response = await axios.get('https://api.kyroskoh.xyz/valorant/v1/mmr/ap/bakabot/7117?show=combo&display=0');
-            
-            // Send the API response directly to Twitch chat
-            twitchClient.say(channel, `${response.data} :33`);
-        } catch (error) {
-            console.error('Error fetching Valorant data:', error.message);
-            // Handle errors appropriately, such as informing the user or logging the error
-        }
+	@@ -498,7 +502,7 @@ function relogSteam(){
     }
 		if (command === "!restartBot" && (userstate.mod || userstate["username"] === channel.slice(1))) {
     console.log('relogging steam with twitch');
     resetGame();
 }
-    
-    
-    // Additional logic for handling other commands or messages
-    if (userstate["username"] === channel.slice(1)) {
-        return;
-    }
-    
-    if (isBotRunning === true) {
-        steamClient.chatMessage(
-            "76561198392179703",
-            `${userstate["username"]}: ${message}`
-        );
-    }
-});
-    
-     twitchClientMain.on("subscription", (channel, username, method, message, userstate) => {
-     twitchClient.say(channel, `${username} thankyou`);
-});
-     twitchClientMain.on("resub", (channel, username, months, message, userstate, methods) => {
-     twitchClient.say(channel, `${username} thankyou`);
-});
-	
-	
-	
-	
-	

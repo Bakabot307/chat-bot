@@ -235,20 +235,31 @@ app.get("/receive-gameName", async (req, res) => {
 	let announced = false;
 	let gameId = 0;
 steamClientMain.on('playingState', async function (blocked, playingApp) {
-    if (gameId === playingApp && !announced) {
-    return; 
-  } else if (playingApp === 0 && gameId !== 0) {
-    announced = false; 
-  } else if (playingApp !== 0 && gameId === 0) {
-    announced = true; 
-    gameId = playingApp; 
-  } else if (playingApp !== 0 && gameId !== playingApp) {
-    announced = false; 
-    gameId = playingApp; 
-  } else if (gameId === playingApp && announced) {
-    announced = false; 
-    return; 
-  }
+ try {
+        if (playingApp !== gameId) {
+            // If playingApp is 0 (no game is being played)
+            if (playingApp === 0) {
+                if (gameId !== 0 && announced) {
+                    announced = false; // Reset announcement flag
+                    console.log("No game is being played."); // Example: Log the event
+                }
+                gameId = 0; // Reset gameId
+            } else {
+                // If gameId is 0 or playingApp is different from gameId
+                gameId = playingApp; // Update gameId
+                announced = true; // Set announcement flag
+                
+                if (gameId !== 0) {
+                    console.log("Started playing a game with ID:", playingApp); // Example: Log the event
+                }
+            }
+        } else if (!announced && gameId !== 0) {
+            announced = true; // Set announcement flag
+            console.log("Game with ID:", playingApp, "is back on."); // Example: Log the event
+        }
+    } catch (error) {
+        console.error("Error handling playing state:", error); // Example: Log any errors
+    }
   steamClientMain.setPersona(SteamUser.EPersonaState.Snooze);
   if (!dotaLaunchedByBot) {  // Check if the game was not launched by the bot
         try {

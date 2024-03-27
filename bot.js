@@ -233,17 +233,15 @@ app.get("/receive-gameName", async (req, res) => {
 	let isBotRunning = false; // Flag to track the bot's operational state
 	let intervalBot;
 	let currentGameId =0;
-steamClientMain.on('playingState', async function (blocked, playingApp) {	
-	 if (!blocked && playingApp !== 0 && playingApp !== currentGameId && !dotaLaunchedByBot) {
-        console.log(`I'm now playing game ID: ${playingApp}`);
-        currentGameId = playingApp;
-    }
+steamClientMain.on('playingState', async function (blocked, playingApp) {		
   steamClientMain.setPersona(SteamUser.EPersonaState.Snooze);
   if (!dotaLaunchedByBot) {  // Check if the game was not launched by the bot
         try {
             const gameName = await getGameInfo(playingApp); // Ensure getGameInfo function is defined and works correctly
             if (gameName) {
+		     if (!blocked && playingApp !== 0 && playingApp !== currentGameId ) {        
                 twitchClient.say("bakabot1235", `/me playing ${gameName}`);
+		     }
             } else {
                 console.log("Game information not available.");
             }

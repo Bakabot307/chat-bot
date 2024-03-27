@@ -239,7 +239,8 @@ steamClientMain.on('playingState', async function (blocked, playingApp) {
         try {
             const gameName = await getGameInfo(playingApp); // Ensure getGameInfo function is defined and works correctly
             if (gameName) {
-		     if (playingApp !== 0 && playingApp !== currentGameId ) {        
+		     if (playingApp !== 0 && playingApp !== currentGameId ) {      
+			   currentGameId=playingApp  
                 twitchClient.say("bakabot1235", `/me playing ${gameName}`);
 		     }
             } else {
@@ -253,6 +254,7 @@ steamClientMain.on('playingState', async function (blocked, playingApp) {
         console.log('No game is currently being played.');
         if (!dotaLaunchedByBot ) {
             // Automatically launch Dota 2 if it wasn't already launched by the bot and the bot is not running
+		currentGameId=0;
             launchDota2ByBot();
         }
     } else if (playingApp === 570) { // Dota 2 is now active

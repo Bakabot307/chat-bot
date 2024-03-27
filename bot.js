@@ -232,9 +232,12 @@ app.get("/receive-gameName", async (req, res) => {
 	let dotaLaunchedByBot = false; // Flag to indicate if Dota 2 was launched by the bot
 	let isBotRunning = false; // Flag to track the bot's operational state
 	let intervalBot;
-	
-steamClientMain.on('playingState', async function (blocked, playingApp) {
-  console.log(playingApp)	
+	let currentGameId =0;
+steamClientMain.on('playingState', async function (blocked, playingApp) {	
+	 if (!blocked && playingApp !== 0 && playingApp !== currentGameId && !dotaLaunchedByBot) {
+        console.log(`I'm now playing game ID: ${playingApp}`);
+        currentGameId = playingApp;
+    }
   steamClientMain.setPersona(SteamUser.EPersonaState.Snooze);
   if (!dotaLaunchedByBot) {  // Check if the game was not launched by the bot
         try {

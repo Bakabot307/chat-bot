@@ -340,8 +340,8 @@ function stopBot() {
 }
 
 function  resetGame(){
-	steamClientMain.gamesPlayed([570]); // Launch Dota 2   
-	steamClientMain.setPersona(SteamUser.EPersonaState.Snooze);}
+	steamClientMain.relog();}
+
 function relogSteam(){
 	// Check if the client is already logged in and Dota 2 was not launched manually before attempting to relog
     if (!steamClientMain.loggedOn) {

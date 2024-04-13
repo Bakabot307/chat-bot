@@ -478,7 +478,7 @@ function relogSteam(){
 	
 	async function removeVIP(userId) {
 	    try {
-	        const { accessToken, refreshToken } = await (); 
+	        const { accessToken, refreshToken } = await getTokens(); 
 	        const broadcasterId = await getBroadcasterId(accessToken);
 	        const url = `https://api.twitch.tv/helix/channels/vips?broadcaster_id=${broadcasterId}&user_id=${userId}`;
 	        const headers = {
@@ -493,7 +493,7 @@ function relogSteam(){
 	}
 	
 	async function verifyTokenScopes() {
-		const tokens = await (); 
+		const tokens = await getTokens(); 
 	        const { accessToken, refreshToken } = tokens;  
 	    try {
 	        const response = await axios.get('https://id.twitch.tv/oauth2/validate', {

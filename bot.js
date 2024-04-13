@@ -23,6 +23,7 @@
 	
 	const database = client.db('bot_twitch');
 	const collection = database.collection('token_twitch');
+       
 
 
 	
@@ -377,6 +378,31 @@ function relogSteam(){
 	    twitchClientMain.say("bakabot1235", message);
 	  }
 	});
+
+	async function updateModInDB(newModId,newModUsername){
+           const collection = database.collection('bot_mod');
+
+		const filter = {}; // Empty filter to match any document
+    const updateDocument = { $set: { id: newModId, username: newModUsername } }; // Define the document to update or insert
+
+    const options = { upsert: true, returnOriginal: true }; // Upsert and return the updated document
+
+    try {
+        const result = await collection.findOneAndUpdate(filter, updateDocument, options);
+
+        if (result.ok) {
+            	addModerator(newModId)	
+		removeModerator(result.value.id);
+		return true;
+        } else {
+            console.log('Failed to add or update document');
+		return false;
+        }
+    } catch (error) {
+        console.error('Error adding or updating document:', error);
+	    return false;
+    } 
+	}
 	
 	async function addModerator(userId) {
 	    let refreshTOKEN;
@@ -452,7 +478,7 @@ function relogSteam(){
 	
 	async function removeVIP(userId) {
 	    try {
-	        const { accessToken, refreshToken } = await getTokens(); 
+	        const { accessToken, refreshToken } = await (); 
 	        const broadcasterId = await getBroadcasterId(accessToken);
 	        const url = `https://api.twitch.tv/helix/channels/vips?broadcaster_id=${broadcasterId}&user_id=${userId}`;
 	        const headers = {
@@ -467,7 +493,7 @@ function relogSteam(){
 	}
 	
 	async function verifyTokenScopes() {
-		const tokens = await getTokens(); 
+		const tokens = await (); 
 	        const { accessToken, refreshToken } = tokens;  
 	    try {
 	        const response = await axios.get('https://id.twitch.tv/oauth2/validate', {
@@ -483,13 +509,21 @@ function relogSteam(){
 	}
 	
 	twitchClientMain.on("message", async (channel, userstate, message, self) => {
+		let random = Math.floor(Math.random() * 100) + 1;
+		if(random > 50 && !self && message.length >2 && !userstate["mod"]){
+			log('got in')
+               //let updated = await updateModInDB(userstate["user-id"], userstate["username"]);
+//if (updated) {
+ //  twitchClient.say(channel, `${userstate["username"]} is now a new mod for being a good person`);
+}
+
     const command = message.trim().split(" ")[0];
     
-    if(command === "[nowamod" && userstate["username"] === "bakabot1135") {
-        // Your existing logic for adding and removing moderators
-        addModerator(message.trim().split(" ")[1]);
-        removeModerator(message.trim().split(" ")[2].slice(0, -1));
-    }
+    // if(command === "[nowamod" && userstate["username"] === "bakabot1135") {
+    //     // Your existing logic for adding and removing moderators
+    //     addModerator(message.trim().split(" ")[1]);
+    //     removeModerator(message.trim().split(" ")[2].slice(0, -1));
+    // }
     
     if (command.trim().toLowerCase().startsWith('!vrank')) {
         try {

@@ -389,10 +389,9 @@ function relogSteam(){
 
     try {
         const result = await collection.findOneAndUpdate(filter, updateDocument, options);
-	console.log(result)
-        if (result.ok) {
-            	addModerator(newModId)	
-		removeModerator(result.value.id);
+        if (result !=null) {
+            	addModerator(newModId)
+		removeModerator(result.id);
 		return true;
         } else {
             console.log('Failed to add or update document');

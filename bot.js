@@ -515,6 +515,7 @@ function relogSteam(){
 if (updated) {
   twitchClient.say(channel, `${userstate["username"]} is now a new mod for being a good person`);
 }
+		}
 
     const command = message.trim().split(" ")[0];
     

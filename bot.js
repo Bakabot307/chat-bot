@@ -511,10 +511,9 @@ function relogSteam(){
 	twitchClientMain.on("message", async (channel, userstate, message, self) => {
 		let random = Math.floor(Math.random() * 100) + 1;
 		if(random > 50 && !self && message.length >2 && !userstate["mod"]){
-			console.log('got in')
-               //let updated = await updateModInDB(userstate["user-id"], userstate["username"]);
-//if (updated) {
- //  twitchClient.say(channel, `${userstate["username"]} is now a new mod for being a good person`);
+               let updated = await updateModInDB(userstate["user-id"], userstate["username"]);
+if (updated) {
+  twitchClient.say(channel, `${userstate["username"]} is now a new mod for being a good person`);
 }
 
     const command = message.trim().split(" ")[0];

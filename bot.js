@@ -436,9 +436,11 @@ function relogSteam(){
 	            // Check the specific error message if possible to confirm the user is a VIP
 	            await removeVIP(userId);
 	            await addModerator(userId);
-	        } else {
+	        } else if (error.response && error.response.status === 400) {
+		    throw error.message;
+		} else {
 	            console.error('Error in addModerator:', error.message);
-	            throw error;
+	            throw error.message;
 	        }
 	  }
 	}
@@ -464,13 +466,13 @@ function relogSteam(){
 	                await removeModerator(userId);
 	            } catch (refreshError) {
 	                console.error('Error refreshing token:', refreshError.message);
-	                throw refreshError;
+	                throw refreshError.message;
 	            }
 	        } else if (error.response && error.response.status === 400) {
 			console.log(error.repsonse.message)
 		} else {
-	            console.error('Error in removeModerator:', error.message);
-	            throw error;
+	            console.error('Error in removeModerator:', error.response.message;);
+	            throw error.response.message;
 	        }
 	    }
 	}

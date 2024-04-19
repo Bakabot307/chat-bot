@@ -582,7 +582,8 @@ twitchClientMain.on("action", (channel, userstate, message, self) => {
     // Don't listen to my own messages..
     if (self) return;
 
-    // Do your stuff.
+   console.log(userstate)
+	console.log(message)
 });
 
 	

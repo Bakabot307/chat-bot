@@ -469,10 +469,10 @@ function relogSteam(){
 	                throw refreshError.message;
 	            }
 	        } else if (error.response && error.response.status === 400) {
-			console.log(error.repsonse.message)
+			console.log(error.message)
 		} else {
 	            console.error('Error in removeModerator:', error.response.message;);
-	            throw error.response.message;
+	            throw error.message;
 	        }
 	    }
 	}

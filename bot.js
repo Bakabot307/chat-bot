@@ -471,7 +471,7 @@ function relogSteam(){
 	        } else if (error.response && error.response.status === 400) {
 			console.log(error.message)
 		} else {
-	            console.error('Error in removeModerator:', error.response.message;);
+	            console.error('Error in removeModerator:', error.message);
 	            throw error.message;
 	        }
 	    }

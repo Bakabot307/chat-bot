@@ -570,9 +570,13 @@ twitchClientMain.on("ban", (channel, username, reason, userstate) => {
 	console.log(username)
 });
 
-twitchClientMain.on("timeout", (channel, username, reason, userstate) => {
+twitchClientMain.on("timeout", (channel, username, reason, duration, userstate) => {
     console.log(userstate)
 	console.log(username)
+	console.log(reason)
+	console.log(duration)
+	console.log(userstate)
+	
 });
 
 	

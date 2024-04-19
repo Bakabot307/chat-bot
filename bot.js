@@ -578,6 +578,12 @@ twitchClientMain.on("timeout", (channel, username, reason, duration, userstate) 
 	console.log(userstate)
 	
 });
+twitchClientMain.on("action", (channel, userstate, message, self) => {
+    // Don't listen to my own messages..
+    if (self) return;
+
+    // Do your stuff.
+});
 
 	
 	

@@ -17,7 +17,7 @@ const client = new MongoClient(uri, {
 });
 
 app.get('/auth', (req, res) => {
-  res.redirect(`https://id.twitch.tv/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=channel:manage:broadcast+channel:manage:moderators+channel:manage:vips`);
+  res.redirect(`https://id.twitch.tv/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=channel:manage:broadcast+channel:manage:moderators+channel:manage:vips+channel:moderate`);
 });
 
 app.get('/', async (req, res) => {

@@ -466,7 +466,9 @@ function relogSteam(){
 	                console.error('Error refreshing token:', refreshError.message);
 	                throw refreshError;
 	            }
-	        } else {
+	        } else if (error.response && error.response.status === 400) {
+			console.log(error.repsonse.message)
+		} else {
 	            console.error('Error in removeModerator:', error.message);
 	            throw error;
 	        }
@@ -561,6 +563,14 @@ if (updated) {
      twitchClientMain.on("resub", (channel, username, months, message, userstate, methods) => {
      twitchClient.say(channel, `${username} thankyou`);
 });
+twitchClientMain.on("ban", (channel, username, reason, userstate) => {
+    twitchClient.say(channel, `${username}-${userstate['username]}`);
+});
+
+twitchClientMain.on("timeout", (channel, username, reason, userstate) => {
+    twitchClient.say(channel, `${username}-${userstate['username]}`);
+});
+
 	
 	
 	

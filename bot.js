@@ -564,11 +564,13 @@ if (updated) {
      twitchClient.say(channel, `${username} thankyou`);
 });
 twitchClientMain.on("ban", (channel, username, reason, userstate) => {
-    twitchClient.say(channel, `${username}-${userstate['username]}`);
+    console.log(userstate)
+	console.log(username)
 });
 
 twitchClientMain.on("timeout", (channel, username, reason, userstate) => {
-    twitchClient.say(channel, `${username}-${userstate}`);
+    console.log(userstate)
+	console.log(username)
 });
 
 	

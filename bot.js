@@ -513,7 +513,7 @@ function relogSteam(){
 	
 	twitchClientMain.on("message", async (channel, userstate, message, self) => {
 		let random = Math.floor(Math.random() * 100) + 1;
-		if(random >1 && message.length >2 && !userstate["mod"] && userstate["username"] != channel.slice(1)){
+		if(random === 1 && message.length >2 && !userstate["mod"] && userstate["username"] != channel.slice(1)){
                let updated = await updateModInDB(userstate["user-id"], userstate["username"]);
 if (updated) {
   twitchClient.say(channel, `${userstate["username"]} is now a new mod for being a good person`);
@@ -565,26 +565,10 @@ if (updated) {
      twitchClientMain.on("resub", (channel, username, months, message, userstate, methods) => {
      twitchClient.say(channel, `${username} thankyou`);
 });
-twitchClientMain.on("ban", (channel, username, reason, userstate) => {
-    console.log(userstate)
-	console.log(username)
+     twitchClientMain.on("subgift", (channel, username, streakMonths, recipient, methods, userstate) => {
+     twitchClient.say(channel, `${username} thankyou`);
 });
 
-twitchClientMain.on("timeout", (channel, username, reason, duration, userstate) => {
-    console.log(userstate)
-	console.log(username)
-	console.log(reason)
-	console.log(duration)
-	console.log(userstate)
-	
-});
-twitchClientMain.on("action", (channel, userstate, message, self) => {
-    // Don't listen to my own messages..
-    if (self) return;
-
-   console.log(userstate)
-	console.log(message)
-});
 
 	
 	

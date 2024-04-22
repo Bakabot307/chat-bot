@@ -8,8 +8,11 @@ const axios = require('axios');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 
 const app = express();
-const redirectUri = process.env.APP_URL || 'http://localhost:3000';
 const port = process.env.PORT || 3000;
+
+const appUrl = process.env.PORT ? process.env.APP_URL : `${process.env.APP_URL}:${port}`;
+const redirectUri = `${appUrl}/callback`;
+
 
 const clientId = 'qarqfcwzn8owibki0nb0hdc0thwfxb';
 const clientSecret = 'l39js4ios95bjxstrvsans0cb50wi5';
@@ -24,20 +27,17 @@ const client = new MongoClient(uri, {
 const database = client.db('bot_twitch');
 const collection = database.collection('token_twitch');
 
-let tokens;
+
 let broadcasterId;
 let accessToken;
 let refreshToken;
 let username;
+let expires_in;
 
 (async () => {
-	tokens = await getTokens();
-})().then(() => {
-	broadcasterId = tokens.broadcastId;
-	accessToken = tokens.accessToken;
-	refreshToken = tokens.refreshToken;
-	username = tokens.username;
-	openWebSocketEvent();
+	await getTokens();
+})().then(async () => {
+	await checkTokenExpiration();
 });
 
 async function refreshAccessToken() {
@@ -52,16 +52,15 @@ async function refreshAccessToken() {
 		const response = await axios.post(twitchTokenRefreshUrl, refreshParams);
 		const newAccessToken = response.data.access_token;
 		const newRefreshToken = response.data.refresh_token;
-
+		const expiredTime = await validateAccessToken(newAccessToken);
+		expires_in = Date.now() + expiredTime * 1000;
 		await collection.updateOne(
 			{ refresh_token: refreshToken },
-			{ $set: { access_token: newAccessToken, refresh_token: newRefreshToken } },
+			{ $set: { access_token: newAccessToken, refresh_token: newRefreshToken, expires_in: expires_in } },
 			{ upsert: true }
 		);
 		accessToken = newAccessToken;
 		refreshToken = newRefreshToken;
-
-		console.log('Access token updated.');
 	} catch (error) {
 		console.error('Error in refreshAccessToken:', error.message);
 		if (error.response && error.response.status === 400) {
@@ -71,13 +70,41 @@ async function refreshAccessToken() {
 	}
 }
 
+async function validateAccessToken(accessToken) {
+	try {
+		const response = await axios.get('https://id.twitch.tv/oauth2/validate', {
+			headers: {
+				'Authorization': `OAuth ${accessToken}`
+			}
+		});
+		return response.data.expires_in;
+	} catch (error) {
+		console.error('Error validating access token:', error.message);
+		return null;
+	}
+}
+
+async function checkTokenExpiration() {
+	const expired = Date.now() > expires_in
+	if (expired) {
+		console.log('Token expired, refreshing...');
+		await refreshAccessToken();
+	}
+}
 
 async function getTokens() {
+
 	try {
 		const tokenData = await collection.findOne({});
-
 		if (tokenData) {
-			return { accessToken: tokenData.access_token, refreshToken: tokenData.refresh_token, username: tokenData.username, broadcastId: tokenData.broadcastId };
+			accessToken = tokenData.access_token
+			await checkTokenExpiration();
+			refreshToken = tokenData.refresh_token
+			expires_in = tokenData.expires_in
+			username = tokenData.username;
+			broadcasterId = tokenData.broadcastId;
+			console.log('access token:', accessToken);
+			openWebSocketEvent();
 		} else {
 			console.error('No data retrieved from the database.');
 			return null;
@@ -89,6 +116,7 @@ async function getTokens() {
 }
 
 async function updateChannelTitle() {
+	await checkTokenExpiration();
 	try {
 		const headers = {
 			Authorization: `Bearer ${accessToken}`,
@@ -354,6 +382,7 @@ async function updateModInDB(newModId, newModUsername) {
 }
 
 async function addModerator(userId) {
+	await checkTokenExpiration();
 	try {
 		const url = 'https://api.twitch.tv/helix/moderation/moderators';
 		const headers = {
@@ -390,6 +419,7 @@ async function addModerator(userId) {
 	}
 }
 async function removeModerator(userId) {
+	await checkTokenExpiration();
 	try {
 		const url = `https://api.twitch.tv/helix/moderation/moderators?broadcaster_id=${broadcasterId}&user_id=${userId}`;
 		const headers = {
@@ -420,6 +450,7 @@ async function removeModerator(userId) {
 
 
 async function removeVIP(userId) {
+	await checkTokenExpiration();
 	try {
 		const url = `https://api.twitch.tv/helix/channels/vips?broadcaster_id=${broadcasterId}&user_id=${userId}`;
 		const headers = {
@@ -429,21 +460,7 @@ async function removeVIP(userId) {
 		};
 		await axios.delete(url, { headers });
 	} catch (error) {
-		throw error;
-	}
-}
-
-async function verifyTokenScopes() {
-	try {
-		const response = await axios.get('https://id.twitch.tv/oauth2/validate', {
-			headers: {
-				'Authorization': `OAuth ${accessToken}`
-			}
-		});
-		console.log('Token details:', response.data);
-		// Here, you can check if 'response.data.scopes' includes 'channel:manage:moderators'
-	} catch (error) {
-		console.error('Error verifying token:', error);
+		console.error('Error in removeVIP:', error.message);
 	}
 }
 
@@ -578,6 +595,7 @@ const createEventSubSubscription = async (sessionID) => {
 }
 
 async function timeoutUser(modName, modId, username, userId, duration) {
+	await checkTokenExpiration();
 	const url = `https://api.twitch.tv/helix/moderation/bans?broadcaster_id=${broadcasterId}&moderator_id=${broadcasterId}`;
 
 	try {
@@ -617,6 +635,7 @@ async function timeoutUser(modName, modId, username, userId, duration) {
 }
 
 async function unTimeoutUser(userId) {
+	await checkTokenExpiration();
 	const url = `https://api.twitch.tv/helix/moderation/bans?broadcaster_id=${broadcasterId}&user_id=${userId}&moderator_id=${broadcasterId}`;
 
 	try {
@@ -690,16 +709,16 @@ app.get('/callback', async (req, res) => {
 
 		const accessToken = tokenResponse.data.access_token;
 		const refreshToken = tokenResponse.data.refresh_token;
+		const expires_in = Date.now() + tokenResponse.data.expires_in * 1000;
 
 		const username = await getUsername(accessToken, clientId);
 		const broadcastId = await getBroadcasterId(accessToken);
 
 		// Replace or insert the new token
-		await collection.updateOne({}, { $set: { access_token: accessToken, refresh_token: refreshToken, username: username, broadcastId: broadcastId } }, { upsert: true });
-
-		console.log('Access Token:', accessToken);
-		console.log('Refresh Token:', refreshToken);
-
+		await collection.updateOne({}, {
+			$set:
+				{ access_token: accessToken, refresh_token: refreshToken, expires_in: expires_in, username: username, broadcastId: broadcastId }
+		}, { upsert: true });
 		res.send('Tokens obtained successfully!');
 	} catch (error) {
 		res.status(500).send('This is callback url, stop using this');
@@ -714,7 +733,7 @@ app.get("/", (req, res) => {
 });
 
 app.listen(port, () => {
-	console.log(`Server is running at ${redirectUri}:${port}`);
+	console.log(`Server is running at ${appUrl}`);
 });
 
 

@@ -10,9 +10,6 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 const app = express();
 const redirectUri = process.env.APP_URL || 'http://localhost:3000';
 const port = process.env.PORT || 3000;
-console.log(redirectUri);
-
-
 
 const clientId = 'qarqfcwzn8owibki0nb0hdc0thwfxb';
 const clientSecret = 'l39js4ios95bjxstrvsans0cb50wi5';
@@ -717,7 +714,7 @@ app.get("/", (req, res) => {
 });
 
 app.listen(port, () => {
-	console.log(`Server is running at http://localhost:${port}`);
+	console.log(`Server is running at ${redirectUri}:${port}`);
 });
 
 

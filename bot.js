@@ -103,7 +103,6 @@ async function getTokens() {
 			expires_in = tokenData.expires_in
 			username = tokenData.username;
 			broadcasterId = tokenData.broadcastId;
-			console.log('access token:', accessToken);
 			openWebSocketEvent();
 		} else {
 			console.error('No data retrieved from the database.');

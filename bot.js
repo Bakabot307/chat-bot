@@ -10,6 +10,8 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 const app = express();
 const redirectUri = process.env.APP_URL || 'http://localhost:3000';
 const port = process.env.PORT || 3000;
+console.log(redirectUri);
+
 
 
 const clientId = 'qarqfcwzn8owibki0nb0hdc0thwfxb';

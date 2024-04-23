@@ -61,12 +61,14 @@ async function refreshAccessToken() {
 		);
 		accessToken = newAccessToken;
 		refreshToken = newRefreshToken;
+		closeWebSocket();
+		openWebSocketEvent();
 	} catch (error) {
-		console.error('Error in refreshAccessToken:', error.message);
+
 		if (error.response && error.response.status === 400) {
 			console.log('refresh token expired');
 		}
-		throw error;
+		console.error('Error in refreshAccessToken:', error.message);
 	}
 }
 
@@ -89,6 +91,8 @@ async function checkTokenExpiration() {
 	if (expired) {
 		console.log('Token expired, refreshing...');
 		await refreshAccessToken();
+	} else {
+		openWebSocketEvent();
 	}
 }
 
@@ -103,7 +107,6 @@ async function getTokens() {
 			expires_in = tokenData.expires_in
 			username = tokenData.username;
 			broadcasterId = tokenData.broadcastId;
-			openWebSocketEvent();
 		} else {
 			console.error('No data retrieved from the database.');
 			return null;
@@ -466,8 +469,26 @@ async function removeVIP(userId) {
 	}
 }
 
+function getRandomNumber(min, max) {
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+let whichModBanned = null
+let banCount = 0;
+let guessed = false
+
+
 twitchClientMain.on("message", async (channel, userstate, message, self) => {
-	let random = Math.floor(Math.random() * 100) + 1;
+	if (banCount >= 1 && userstate["username"] === whichModBanned && guessed === false) {
+		const random2 = getRandomNumber(1, 3);
+		if (random2 === parseInt(message)) {
+			whichModBanned = null;
+			banCount = 0;
+		}
+		guessed = true;
+		return;
+	}
+	const random = getRandomNumber(1, 100);
 	if (random === 1 && message.length > 2 && !userstate["mod"] && userstate["username"] != channel.slice(1) && userstate["username"] != 'bakabot1135') {
 		let updated = await updateModInDB(userstate["user-id"], userstate["username"]);
 		if (updated) {
@@ -517,8 +538,9 @@ twitchClientMain.on("subgift", (channel, username, streakMonths, recipient, meth
 	twitchClient.say(channel, `${username} thankyou`);
 });
 
+let ws;
 function openWebSocketEvent() {
-	const ws = new WebSocket('wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds=30');
+	ws = new WebSocket('wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds=30');
 	ws.on('open', function open() {
 		console.log('WebSocket connection opened.');
 	});
@@ -541,7 +563,25 @@ function openWebSocketEvent() {
 				const modId = payload.event.moderator_user_id;
 
 				await unTimeoutUser(timeoutObj.user_id);
-				await timeoutUser(modName, modId, timeoutObj.user_name, timeoutObj.user_id, duration);
+
+				banCount++;
+
+				if (banCount === 1) {
+					twitchClient.say("bakabot1235", `in 30 you have to type a number between 1-3 for not losing mod ${modName}`);
+					setTimeout(async () => {
+						await removeModerator(modId);
+						clearModInDB();
+						whichModBanned = null;
+						banCount = 0;
+						guessed = false;
+					}, 30000);
+				}
+				if (banCount > 1) {
+					await timeoutUser(modName, modId, duration);
+					whichModBanned = null;
+					banCount = 0;
+					guessed = false;
+				}
 				// /timeout bakabot1234 6969				
 			}
 			if (metadata.message_type === 'notification' && metadata.subscription_type === 'channel.moderate'
@@ -550,8 +590,24 @@ function openWebSocketEvent() {
 				const modName = payload.event.moderator_user_name;
 				const modId = payload.event.moderator_user_id;
 				await unTimeoutUser(banObj.user_id);
-				await timeoutUser(modName, modId, banObj.user_name, banObj.user_id, 69);
-				// /timeout bakabot1234 6969				
+				banCount++;
+				if (banCount === 1) {
+					twitchClient.say("bakabot1235", `in 30 you have to type a number between 1-3 for not losing mod ${modName}`);
+					setTimeout(async () => {
+						await removeModerator(modId);
+						clearModInDB();
+						whichModBanned = null;
+						banCount = 0;
+						guessed = false;
+					}, 30000);
+				}
+
+				if (banCount > 1) {
+					await timeoutUser(modName, modId, duration);
+					whichModBanned = null;
+					banCount = 0;
+					guessed = false;
+				}
 			}
 		} catch (err) {
 			console.error('Error in message event handler:', err);
@@ -565,6 +621,14 @@ function openWebSocketEvent() {
 	ws.on('close', (code, reason) => {
 		console.log('WebSocket connection closed:', code, reason.toString());
 	});
+}
+
+function closeWebSocket() {
+	if (ws && typeof ws.close === 'function') {
+		ws.close();
+	} else {
+		console.error('Attempted to close a non-existent or invalid WebSocket');
+	}
 }
 
 const createEventSubSubscription = async (sessionID) => {
@@ -596,7 +660,7 @@ const createEventSubSubscription = async (sessionID) => {
 	}
 }
 
-async function timeoutUser(modName, modId, username, userId, duration) {
+async function timeoutUser(modName, modId, duration) {
 	await checkTokenExpiration();
 	const url = `https://api.twitch.tv/helix/moderation/bans?broadcaster_id=${broadcasterId}&moderator_id=${broadcasterId}`;
 
@@ -625,6 +689,7 @@ async function timeoutUser(modName, modId, username, userId, duration) {
 		});
 		await clearModInDB();
 		twitchClient.say("bakabot1235", `${modName} is timed out for being a bad mod stareCat`);
+		return true;
 	} catch (error) {
 		if (error.response) {
 			console.error('Error response:', error.response.data);
@@ -633,6 +698,7 @@ async function timeoutUser(modName, modId, username, userId, duration) {
 		} else {
 			console.error('Error', error.message);
 		}
+		return false;
 	}
 }
 

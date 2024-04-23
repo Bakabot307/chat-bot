@@ -706,17 +706,22 @@ app.get('/callback', async (req, res) => {
 			},
 		});
 
-		const accessToken = tokenResponse.data.access_token;
-		const refreshToken = tokenResponse.data.refresh_token;
-		const expires_in = Date.now() + tokenResponse.data.expires_in * 1000;
+		const newAccessToken = tokenResponse.data.access_token;
+		const newRefreshToken = tokenResponse.data.refresh_token;
+		const newExpires_in = Date.now() + tokenResponse.data.expires_in * 1000;
+		const newUsername = await getUsername(accessToken, clientId);
+		const newBroadcastId = await getBroadcasterId(accessToken);
 
-		const username = await getUsername(accessToken, clientId);
-		const broadcastId = await getBroadcasterId(accessToken);
+		accessToken = newAccessToken;
+		refreshToken = newRefreshToken;
+		expires_in = newExpires_in;
+		username = newUsername;
+		broadcasterId = newBroadcastId;
 
-		// Replace or insert the new token
+		// Replace or insert the new token	
 		await collection.updateOne({}, {
 			$set:
-				{ access_token: accessToken, refresh_token: refreshToken, expires_in: expires_in, username: username, broadcastId: broadcastId }
+				{ access_token: newAccessToken, refresh_token: newRefreshToken, expires_in: newExpires_in, username: newUsername, broadcastId: newBroadcastId }
 		}, { upsert: true });
 		res.send('Tokens obtained successfully!');
 	} catch (error) {

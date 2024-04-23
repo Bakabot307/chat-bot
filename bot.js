@@ -355,6 +355,7 @@ steamClient.on("friendMessage", function (steamId, message) {
 });
 
 async function updateModInDB(newModId, newModUsername) {
+	await client.connect();
 	const collection = database.collection('bot_mod');
 
 	const filter = {}; // Empty filter to match any document
@@ -377,6 +378,8 @@ async function updateModInDB(newModId, newModUsername) {
 	} catch (error) {
 		console.error('Error adding or updating document:', error);
 		return false;
+	} finally {
+		await client.close();
 	}
 }
 
@@ -657,6 +660,7 @@ async function unTimeoutUser(userId) {
 }
 
 async function clearModInDB() {
+	await client.connect();
 	const collection = database.collection('bot_mod');
 
 	try {
@@ -664,6 +668,8 @@ async function clearModInDB() {
 		console.log(`Successfully deleted ${result.deletedCount} documents.`);
 	} catch (error) {
 		console.error('Error deleting documents:', error);
+	} finally {
+		await client.close();
 	}
 }
 

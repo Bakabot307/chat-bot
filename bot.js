@@ -37,7 +37,9 @@ let expires_in;
 (async () => {
 	await getTokens();
 })().then(async () => {
-	await checkTokenExpiration();
+	await checkTokenExpiration().then(() => {
+		openWebSocketEvent();
+	});
 });
 
 async function refreshAccessToken() {
@@ -91,13 +93,10 @@ async function checkTokenExpiration() {
 	if (expired) {
 		console.log('Token expired, refreshing...');
 		await refreshAccessToken();
-	} else {
-		openWebSocketEvent();
 	}
 }
 
 async function getTokens() {
-
 	try {
 		const tokenData = await collection.findOne({});
 		if (tokenData) {
@@ -484,8 +483,9 @@ twitchClientMain.on("message", async (channel, userstate, message, self) => {
 		if (random2 === parseInt(message)) {
 			whichModBanned = null;
 			banCount = 0;
+		} else {
+			guessed = true;
 		}
-		guessed = true;
 		return;
 	}
 	const random = getRandomNumber(1, 100);
@@ -539,6 +539,7 @@ twitchClientMain.on("subgift", (channel, username, streakMonths, recipient, meth
 });
 
 let ws;
+let gotTimeout = false;
 function openWebSocketEvent() {
 	ws = new WebSocket('wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds=30');
 	ws.on('open', function open() {
@@ -563,25 +564,8 @@ function openWebSocketEvent() {
 				const modId = payload.event.moderator_user_id;
 
 				await unTimeoutUser(timeoutObj.user_id);
+				await executeMod(modName, modId);
 
-				banCount++;
-
-				if (banCount === 1) {
-					twitchClient.say("bakabot1235", `in 30 you have to type a number between 1-3 for not losing mod ${modName}`);
-					setTimeout(async () => {
-						await removeModerator(modId);
-						clearModInDB();
-						whichModBanned = null;
-						banCount = 0;
-						guessed = false;
-					}, 30000);
-				}
-				if (banCount > 1) {
-					await timeoutUser(modName, modId, duration);
-					whichModBanned = null;
-					banCount = 0;
-					guessed = false;
-				}
 				// /timeout bakabot1234 6969				
 			}
 			if (metadata.message_type === 'notification' && metadata.subscription_type === 'channel.moderate'
@@ -589,25 +573,9 @@ function openWebSocketEvent() {
 				const banObj = payload.event.ban;
 				const modName = payload.event.moderator_user_name;
 				const modId = payload.event.moderator_user_id;
-				await unTimeoutUser(banObj.user_id);
-				banCount++;
-				if (banCount === 1) {
-					twitchClient.say("bakabot1235", `in 30 you have to type a number between 1-3 for not losing mod ${modName}`);
-					setTimeout(async () => {
-						await removeModerator(modId);
-						clearModInDB();
-						whichModBanned = null;
-						banCount = 0;
-						guessed = false;
-					}, 30000);
-				}
 
-				if (banCount > 1) {
-					await timeoutUser(modName, modId, duration);
-					whichModBanned = null;
-					banCount = 0;
-					guessed = false;
-				}
+				await unTimeoutUser(banObj.user_id);
+				await executeMod(modName, modId);
 			}
 		} catch (err) {
 			console.error('Error in message event handler:', err);
@@ -660,6 +628,38 @@ const createEventSubSubscription = async (sessionID) => {
 	}
 }
 
+async function executeMod(eModName, eModId) {
+	banCount++;
+	whichModBanned = eModName;
+	if (banCount === 1) {
+		twitchClient.say("bakabot1235", `in 30sec you have to type a number between 1-3 for not losing mod ${eModName}`);
+		setTimeout(async () => {
+			if (banCount === 1) {
+				await removeModerator(eModId);
+				clearModInDB();
+				whichModBanned = null;
+				banCount = 0;
+				guessed = false;
+				twitchClient.say("bakabot1235", `${eModName} keke`);
+				console.log("lost mod")
+				return;
+			}
+
+			if (gotTimeout) {
+				console.log("got timedout")
+				gotTimeout = false;
+			}
+
+		}, 30000);
+	} else {
+		await timeoutUser(eModName, eModId, 69);
+		gotTimeout = true;
+		whichModBanned = null;
+		banCount = 0;
+		guessed = false;
+		twitchClient.say("bakabot1235", `${eModName} stop being naughty :333`);
+	}
+}
 async function timeoutUser(modName, modId, duration) {
 	await checkTokenExpiration();
 	const url = `https://api.twitch.tv/helix/moderation/bans?broadcaster_id=${broadcasterId}&moderator_id=${broadcasterId}`;
@@ -688,7 +688,6 @@ async function timeoutUser(modName, modId, duration) {
 			}
 		});
 		await clearModInDB();
-		twitchClient.say("bakabot1235", `${modName} is timed out for being a bad mod stareCat`);
 		return true;
 	} catch (error) {
 		if (error.response) {

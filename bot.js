@@ -484,7 +484,7 @@ twitchClientMain.on("message", async (channel, userstate, message, self) => {
 		return;
 	}
 	const random = getRandomNumber(1, 100);
-	if (random > 50 && message.length > 2 && !userstate["mod"] && userstate["username"] != channel.slice(1) && userstate["username"] != 'bakabot1135') {
+	if (random === 1 && message.length > 2 && !userstate["mod"] && userstate["username"] != channel.slice(1) && userstate["username"] != 'bakabot1135') {
 		let updated = await updateModInDB(userstate["user-id"], userstate["username"]);
 		if (updated) {
 			twitchClient.say(channel, `${userstate["username"]} is now a new nice mod startbeingNice`);

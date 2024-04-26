@@ -367,16 +367,11 @@ async function updateModInDB(newModId, newModUsername) {
 
 	try {
 		const result = await collection.findOneAndUpdate(filter, updateDocument, options);
+		addModerator(newModId)
 		if (result != null) {
-			addModerator(newModId)
-			if (result.id != null) {
-				removeModerator(result.id);
-			}
-			return true;
-		} else {
-			console.log('Failed to add or update document');
-			return false;
+			removeModerator(result.id);
 		}
+		return true;
 	} catch (error) {
 		console.error('Error adding or updating document:', error);
 		return false;
@@ -489,7 +484,7 @@ twitchClientMain.on("message", async (channel, userstate, message, self) => {
 		return;
 	}
 	const random = getRandomNumber(1, 100);
-	if (random === 1 && message.length > 2 && !userstate["mod"] && userstate["username"] != channel.slice(1) && userstate["username"] != 'bakabot1135') {
+	if (random > 50 && message.length > 2 && !userstate["mod"] && userstate["username"] != channel.slice(1) && userstate["username"] != 'bakabot1135') {
 		let updated = await updateModInDB(userstate["user-id"], userstate["username"]);
 		if (updated) {
 			twitchClient.say(channel, `${userstate["username"]} is now a new nice mod startbeingNice`);

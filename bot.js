@@ -213,7 +213,7 @@ let intervalBot;
 let currentGameId = 0;
 steamClientMain.on('playingState', async function (blocked, playingApp) {
 	try {
-		steamClientMain.setPersona(SteamUser.EPersonaState.Snooze);
+		steamClientMain.setPersona(SteamUser.EPersonaState.LookingToPlay);
 		if (!dotaLaunchedByBot) {
 			const gameName = await getGameInfo(playingApp);
 			if (gameName) {

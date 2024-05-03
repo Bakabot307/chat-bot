@@ -211,9 +211,10 @@ let dotaLaunchedByBot = false;
 let isBotRunning = false;
 let intervalBot;
 let currentGameId = 0;
+let status = SteamUser.EPersonaState.Snooze;
 steamClientMain.on('playingState', async function (blocked, playingApp) {
 	try {
-		steamClientMain.setPersona(SteamUser.EPersonaState.LookingToPlay);
+		steamClientMain.setPersona(status);
 		if (!dotaLaunchedByBot) {
 			const gameName = await getGameInfo(playingApp);
 			if (gameName) {
@@ -263,7 +264,7 @@ function launchDota2ByBot() {
 		dotaLaunchedByBot = true; // Indicate the bot is launching Dota 2
 		console.log("Dota 2 is being launched by the bot after a 70-second delay.");
 		steamClientMain.gamesPlayed([570]); // Launch Dota 2   
-		steamClientMain.setPersona(SteamUser.EPersonaState.Snooze);
+		steamClientMain.setPersona(status);
 	}, 70000); // 70000 milliseconds delay
 }
 
@@ -507,6 +508,16 @@ twitchClientMain.on("message", async (channel, userstate, message, self) => {
 	if (command === "!restartBot" && (userstate.mod || userstate["username"] === channel.slice(1))) {
 		console.log('relogging steam with twitch');
 		resetGame();
+	}
+	if (command === "!snooze" && (userstate.mod || userstate["username"] === channel.slice(1))) {
+		status = SteamUser.EPersonaState.Snooze;
+		steamClientMain.setPersona(status);
+
+	}
+
+	if (command === "!looking" && (userstate.mod || userstate["username"] === channel.slice(1))) {
+		status = SteamUser.EPersonaState.LookingToPlay;
+		steamClientMain.setPersona(status);
 	}
 
 

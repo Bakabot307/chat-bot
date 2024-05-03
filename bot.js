@@ -636,11 +636,12 @@ const createEventSubSubscription = async (sessionID) => {
 
 async function executeMod(eModName, eModId) {
 	banCount++;
+	console.log('bancount:', banCount)
 	whichModBanned = eModName;
 	if (banCount === 1) {
 		twitchClient.say("bakabot1235", `in 30sec you have to type a number between 1-3 for not losing mod ${eModName}`);
 		setTimeout(async () => {
-			if (banCount === 1) {
+			if (banCount === 1 && gotTimeout === false) {
 				await removeModerator(eModId);
 				clearModInDB();
 				whichModBanned = null;
@@ -654,10 +655,10 @@ async function executeMod(eModName, eModId) {
 			if (gotTimeout) {
 				console.log("got timedout")
 				gotTimeout = false;
+				return;
 			}
-
 		}, 30000);
-	} else {
+	} else if (banCount > 1) {
 		await timeoutUser(eModName, eModId, 69);
 		gotTimeout = true;
 		whichModBanned = null;

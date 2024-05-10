@@ -44,6 +44,7 @@ let expires_in;
 
 async function refreshAccessToken() {
 	try {
+		await client.connect();
 		const refreshParams = new URLSearchParams({
 			grant_type: 'refresh_token',
 			refresh_token: refreshToken,
@@ -71,6 +72,8 @@ async function refreshAccessToken() {
 			console.log('refresh token expired');
 		}
 		console.error('Error in refreshAccessToken:', error.message);
+	} finally {
+		await client.close();
 	}
 }
 
@@ -98,6 +101,7 @@ async function checkTokenExpiration() {
 
 async function getTokens() {
 	try {
+		await client.connect();
 		const tokenData = await collection.findOne({});
 		if (tokenData) {
 			accessToken = tokenData.access_token
@@ -113,6 +117,8 @@ async function getTokens() {
 	} catch (error) {
 		console.error('Error in getTokens:', error.message);
 		throw error;
+	} finally {
+		await client.close();
 	}
 }
 
@@ -732,10 +738,9 @@ async function unTimeoutUser(userId) {
 }
 
 async function clearModInDB() {
-	await client.connect();
-	const collection = database.collection('bot_mod');
-
 	try {
+		await client.connect();
+		const collection = database.collection('bot_mod');
 		const result = await collection.deleteMany({});
 		console.log(`Successfully deleted ${result.deletedCount} documents.`);
 	} catch (error) {

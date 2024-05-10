@@ -138,7 +138,7 @@ async function updateChannelTitle() {
 			const randomEmote = emotes[Math.floor(Math.random() * emotes.length)];
 
 			const data = {
-				title: randomEmote.name,
+				title: `${randomEmote.name} (づ｡O‿‿O)づ｡`,
 			};
 
 			const response = await axios.patch(`https://api.twitch.tv/helix/channels?broadcaster_id=${broadcasterId}`, data, { headers });

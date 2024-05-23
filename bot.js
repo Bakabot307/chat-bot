@@ -138,7 +138,7 @@ async function updateChannelTitle() {
 			const randomEmote = emotes[Math.floor(Math.random() * emotes.length)];
 
 			const data = {
-				title: `${randomEmote.name} (づ｡O‿‿O)づ｡`,
+				title: randomEmote.name,
 			};
 
 			const response = await axios.patch(`https://api.twitch.tv/helix/channels?broadcaster_id=${broadcasterId}`, data, { headers });
@@ -808,6 +808,7 @@ app.get('/callback', async (req, res) => {
 		}, { upsert: true });
 		res.send('Tokens obtained successfully!');
 	} catch (error) {
+		console.error('Error during callback processing:', error);
 		res.status(500).send('This is callback url, stop using this');
 	} finally {
 		await client.close();

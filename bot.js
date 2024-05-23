@@ -72,6 +72,7 @@ async function refreshAccessToken() {
 			console.log('refresh token expired');
 		}
 		console.error('Error in refreshAccessToken:', error.message);
+		twitchClient.say("bakabot1235", `/me please auth again`);
 	} finally {
 		await client.close();
 	}
@@ -792,8 +793,8 @@ app.get('/callback', async (req, res) => {
 		const newAccessToken = tokenResponse.data.access_token;
 		const newRefreshToken = tokenResponse.data.refresh_token;
 		const newExpires_in = Date.now() + tokenResponse.data.expires_in * 1000;
-		const newUsername = await getUsername(accessToken, clientId);
-		const newBroadcastId = await getBroadcasterId(accessToken);
+		const newUsername = await getUsername(newAccessToken, clientId);
+		const newBroadcastId = await getBroadcasterId(newAccessToken);
 
 		accessToken = newAccessToken;
 		refreshToken = newRefreshToken;
@@ -808,7 +809,7 @@ app.get('/callback', async (req, res) => {
 		}, { upsert: true });
 		res.send('Tokens obtained successfully!');
 	} catch (error) {
-		console.error('Error during callback processing:', error);
+		console.error('Error during callback processing:', error.response ? error.response.data : error.message);
 		res.status(500).send('This is callback url, stop using this');
 	} finally {
 		await client.close();

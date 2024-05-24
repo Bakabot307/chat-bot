@@ -124,6 +124,9 @@ async function getTokens() {
 }
 
 async function updateChannelTitle() {
+	if (updateTitle === false) {
+		return;
+	}
 	await checkTokenExpiration();
 	try {
 		const headers = {
@@ -213,7 +216,7 @@ steamClientMain.on("steamGuard", function (domain, callback, lastCodeWrong) {
 		}, 30000);
 	}
 });
-
+let updateTitle = true;
 let dotaLaunchedByBot = false;
 let isBotRunning = false;
 let intervalBot;
@@ -525,6 +528,10 @@ twitchClientMain.on("message", async (channel, userstate, message, self) => {
 	if (command === "!looking" && (userstate.mod || userstate["username"] === channel.slice(1))) {
 		status = SteamUser.EPersonaState.LookingToPlay;
 		steamClientMain.setPersona(status);
+	}
+
+	if (command === "!stop" && (userstate.mod || userstate["username"] === channel.slice(1))) {
+		updateTitle = !updateTitle
 	}
 
 

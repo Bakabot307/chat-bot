@@ -512,11 +512,11 @@ twitchClientMain.on("message", async (channel, userstate, message, self) => {
 			const data = response.data.data;
 			const currentTier = data.currenttierpatched;
 			const rankingInTier = data.ranking_in_tier;
-			const mmrChange = data.mmr_change_to_last_game >= 0 ? `+${data.mmr_change_to_last_game}` : `-${data.mmr_change_to_last_game}`;
+			const mmrChange = data.mmr_change_to_last_game >= 0 ? `+${data.mmr_change_to_last_game}` : `${data.mmr_change_to_last_game}`;
 
 
 			// Format the message to send to Twitch chat
-			const message = `${currentTier}-${rankingInTier} (${mmrChange}) :333`;
+			const message = `${currentTier} - ${rankingInTier} rr (${mmrChange}) :333`;
 			twitchClient.say(channel, message);
 		} catch (error) {
 			console.error('Error fetching Valorant data:', error.message);

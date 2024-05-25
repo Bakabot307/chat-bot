@@ -503,16 +503,23 @@ twitchClientMain.on("message", async (channel, userstate, message, self) => {
 	}
 
 	const command = message.trim().split(" ")[0];
+
 	if (command.trim().toLowerCase().startsWith('!vrank')) {
 		try {
-			// Make the API request to fetch Valorant data
-			const response = await axios.get('https://api.kyroskoh.xyz/valorant/v1/mmr/ap/bakabot/7117?show=combo&display=0');
 
-			// Send the API response directly to Twitch chat
-			twitchClient.say(channel, `${response.data} :333`);
+			const response = await axios.get('https://api.henrikdev.xyz/valorant/v1/mmr/ap/bakabot/7117?api_key=HDEV-bd6ba6d2-4e21-46e0-860b-6cd67a0bb14f');
+
+			const data = response.data.data;
+			const currentTier = data.currenttierpatched;
+			const rankingInTier = data.ranking_in_tier;
+			const mmrChange = data.mmr_change_to_last_game >= 0 ? `+${data.mmr_change_to_last_game}` : `-${data.mmr_change_to_last_game}`;
+
+
+			// Format the message to send to Twitch chat
+			const message = `${currentTier}-${rankingInTier} (${mmrChange}) :333`;
+			twitchClient.say(channel, message);
 		} catch (error) {
 			console.error('Error fetching Valorant data:', error.message);
-			// Handle errors appropriately, such as informing the user or logging the error
 		}
 	}
 	if (command === "!restartBot" && (userstate.mod || userstate["username"] === channel.slice(1))) {

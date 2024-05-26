@@ -481,6 +481,8 @@ function getRandomNumber(min, max) {
 let whichModBanned = null
 let banCount = 0;
 let guessed = false
+let vName = "bakabot"
+let vTag = "7117"
 
 
 twitchClientMain.on("message", async (channel, userstate, message, self) => {
@@ -505,9 +507,15 @@ twitchClientMain.on("message", async (channel, userstate, message, self) => {
 	const command = message.trim().split(" ")[0];
 
 	if (command.trim().toLowerCase().startsWith('!vrank')) {
+		if (message.trim().split(" ")[1] != undefined && message.trim().split(" ")[2] != undefined) {
+			vName = message.trim().split(" ")[1]
+			vTag = message.trim().split(" ")[2]
+		} else {
+			vName = "bakabot"
+			vTag = "7117"
+		}
 		try {
-
-			const response = await axios.get('https://api.henrikdev.xyz/valorant/v1/mmr/ap/bakabot/7117?api_key=HDEV-bd6ba6d2-4e21-46e0-860b-6cd67a0bb14f');
+			const response = await axios.get(`https://api.henrikdev.xyz/valorant/v1/mmr/ap/${vName}/${vTag}?api_key=HDEV-bd6ba6d2-4e21-46e0-860b-6cd67a0bb14f`);
 
 			const data = response.data.data;
 			const currentTier = data.currenttierpatched;

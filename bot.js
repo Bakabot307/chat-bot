@@ -274,7 +274,7 @@ function launchDota2ByBot() {
 	setTimeout(() => {
 		dotaLaunchedByBot = true; // Indicate the bot is launching Dota 2
 		console.log("Dota 2 is being launched by the bot after a 70-second delay.");
-		steamClientMain.gamesPlayed([gameId]); // Launch Dota 2   
+		steamClientMain.gamesPlayed([parseInt(gameId)]);
 		steamClientMain.setPersona(status);
 	}, 70000); // 70000 milliseconds delay
 }

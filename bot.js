@@ -9,6 +9,7 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 
 const app = express();
 const port = process.env.PORT || 3000;
+const gameId = process.env.GAMEID || 570;
 
 const appUrl = process.env.PORT ? process.env.APP_URL : `${process.env.APP_URL}:${port}`;
 const redirectUri = `${appUrl}/callback`;
@@ -273,7 +274,7 @@ function launchDota2ByBot() {
 	setTimeout(() => {
 		dotaLaunchedByBot = true; // Indicate the bot is launching Dota 2
 		console.log("Dota 2 is being launched by the bot after a 70-second delay.");
-		steamClientMain.gamesPlayed([570]); // Launch Dota 2   
+		steamClientMain.gamesPlayed([gameId]); // Launch Dota 2   
 		steamClientMain.setPersona(status);
 	}, 70000); // 70000 milliseconds delay
 }

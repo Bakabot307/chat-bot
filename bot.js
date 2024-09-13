@@ -313,9 +313,12 @@ async function getGameInfo(appId) {
 	}
 }
 steamClientMain.on("error", function (e) {
+
 	if (e.eresult === SteamUser.EResult.LoggedInElsewhere) {
 		console.log("logged somewhere else");
 		relogAfterDelay();
+	} else {
+		console.log("error code:", e.eresult);
 	}
 });
 
